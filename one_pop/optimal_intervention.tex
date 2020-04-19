@@ -390,11 +390,11 @@ The necessary conditions for an optimal control consist of $\eqref{SIRq}$ togeth
 \end{subequations}
 as well as the condition $\partial H/\partial \sigma = 0$, which reads:
 \begin{align*}
-    \sigma(t) = \sigma_0 + \frac{(\lambda_2(t)-\lambda_1(t))\gamma y x}{2c_2}.
+    \sigma(t) = \sigma_0 - \frac{(\lambda_2(t)-\lambda_1(t))\gamma y x}{2c_2}.
 \end{align*}
 We additionally impose the constraint $0\le \sigma(t) \le \sigma_0$, yielding
 \begin{align} \label{eq:sigma-c2}
-    \sigma(t) = \max\left(0,\min\left(\sigma_0,\sigma_0 + \frac{\lambda_2(t)-\lambda_1(t))\gamma y x}{2c_2}\right)\right).
+    \sigma(t) = \max\left(0,\min\left(\sigma_0,\sigma_0 - \frac{(\lambda_2(t)-\lambda_1(t))\gamma y x}{2c_2}\right)\right).
 \end{align}
 The final conditions for $\lambda_{1,2}$ can be computed from \eqref{xinf-grad}.
 
@@ -496,10 +496,10 @@ lead to a larger value of $y(T)$.  Since $\Sinf$ is a decreasing function of $y$
 
 Now suppose $x(0)>1/\sigma_0$.  Taking the limit $c_2\to 0$ in \eqref{eq:sigma-c2} gives
 \begin{align}
-    \sigma(t) & = \begin{cases} 0 & \lambda_1(t)>\lambda_2(t) \\ \sigma_0 & \lambda_1(t) < \lambda_2(t). \end{cases}
+    \sigma(t) & = \begin{cases} 0 & \lambda_1(t)<\lambda_2(t) \\ \sigma_0 & \lambda_1(t) > \lambda_2(t). \end{cases}
 \end{align}
 In other words, the solution is a bang-bang control that switches when $\lambda_2-\lambda_1$ changes sign.
-Since $\lambda_2(T)<\lambda_1(T)<0$, we have $\sigma(T)=0$.  We can integrate \eqref{lambda-odes} backward from the final
+Since $\lambda_2(T)>\lambda_1(T)>0$, we have $\sigma(T)=0$.  We can integrate \eqref{lambda-odes} backward from the final
 time with $\sigma=0$ to find when $\lambda_1=\lambda_2$.  This yields \eqref{xtstar}.
 
 It remains to show that the optimal control for $t<t^*$ is given by $q=0$.  
