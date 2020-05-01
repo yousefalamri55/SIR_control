@@ -27,7 +27,7 @@
 \newcommand{\Dx}{\Delta x}
 \newcommand{\Dy}{\Delta y}
 
-\DeclareMathOperator\supp{supp}
+\newenvironment{AMS}{\par\textbf{AMS subject classification.}}{\par}
 
 \begin{document}
 \title{Optimal control of an SIR epidemic through finite-time non-pharmaceutical intervention}
@@ -51,6 +51,11 @@ is included, as well as a cost associated with overwhelming the available medica
 Examples are studied through the numerical solution of the associated Hamilton-Jacobi-Bellman
 equation.  Finally, we provide some examples related directly to the current pandemic.
 }
+
+\begin{AMS}
+    92D30, 34H05, 49N90, 92-10, 49L12
+\end{AMS}
+
 
 \section{Problem description and assumptions}
 The classical SIR model of Kermack \& Mckendrick \cite{kermack1927contribution} is
@@ -81,7 +86,7 @@ confers permanent immunity.
     \centering
     \subfigure[$\sigma=3$]{\label{sigma3}\includegraphics[width=0.49\textwidth]{figures/sigma3.pdf}}
     \subfigure[$\sigma=1.5$]{\label{sigma15}\includegraphics[width=0.49\textwidth]{figures/sigma15.pdf}}
-    \caption{Dynamics of SIR model for two values of the basic reproduction number.
+    \caption{Dynamics of the SIR model \eqref{SIR} for two values of the basic reproduction number.
             The critical value $x=1/\sigma$ is shown with a dashed line.\label{fig:dynamics}}
 \end{figure}
 
@@ -206,7 +211,7 @@ as Theorem \ref{thm:no-cost} in Section \ref{sec:analytic}.
 Typical results in the literature on control of compartmental epidemiological models
 are numerical and are based on Pontryagin's weak maximum principle, which gives only
 necessary conditions for optimality.  At best, uniqueness is shown for small times; see e.g. 
-\cite{kirschner1997optimal,fister1998optimizing,jung2002optimal,yan2008optimal,kar2011stability}.
+\cite{kirschner1997optimal,fister1998optimizing,jung2002optimal,yan2008optimal,kar2011stability,sharomi2017optimal}.
 In contrast, here the main result includes a proof of optimality for arbitrarily large times.
 In Section \ref{sec:exploration} we explore
 the behavior of optimal solutions for $L\ne 0$ under various interesting
@@ -631,8 +636,9 @@ In Figure \ref{fig:example_2}, we show an optimal solution when $\sigma(t)\ge 0.
     \caption{Optimal solutions with $\sigma(t)\ge 0.4\Rnot$.  Here $(x(0),y(0)) = (0.99,0.01)$, $\beta=0.3$, $\gamma=0.1$, and $T=100$.\label{fig:example_2}}
 \end{figure}
 
-The switching time \eqref{xtstar} can also be derived via the Hamilton-Jacobi-Bellman (HJB) equation
-for \eqref{eq:no-cost-problem}.  The HJB equation for $u(x,y,t)$ can be written
+The result above can also be obtained via the Hamilton-Jacobi-Bellman (HJB) equation
+for \eqref{eq:no-cost-problem}.  Here we sketch this approach.  The HJB
+equation for $u(x,y,t)$ can be written
 \begin{subequations} \label{eq:hjb-no-cost}
 \begin{align}
     u_t & = \gamma y(t) u_y - \gamma x y \min_\sigma \left((u_y-u_x)\sigma\right) \\
@@ -655,13 +661,21 @@ The solution of this hyperbolic PDE is
 \begin{align*}
     u(x,y,t) & = u(x,ye^{-\gamma(T-t)},T) = -\Sinf(x,ye^{-\gamma(T-t)}).
 \end{align*}
-Thus
+Thus, for small enough $T-t$,
 \begin{align*}
     u_x(x,y,t) & = -\frac{\partial \Sinf}{\partial y(t)} \left(1- \frac{1}{x(t)\Rnot}\right) \\
     u_y(x,y,t) & = -\frac{\partial \Sinf}{\partial y(t)} e^{-\gamma(T-t)}.
 \end{align*}
 According to \eqref{eq:hjb-control}, the optimal control value will switch when $u_x=u_y$, which
-leads to \eqref{xtstar}.
+leads to \eqref{xtstar}.  Meanwhile, substituting \eqref{eq:hjb-control} in \eqref{eq:hjb-no-cost}
+in the case $u_y<u_x$ yields the linear hyperbolic PDE
+$$
+    u_t = \gamma y u_y - \beta x y (u_y-u_x),
+$$
+whose characteristics are just the trajectories of the SIR system
+\eqref{SIR} illustrated in Figure \ref{fig:dynamics}, which are also
+contours of $\Sinf$.  It can be shown that once $u_y-u_x<0$, this inequality
+will continue to hold along each such characteristic.
 
 
 \section{Optimal control with $L\ne 0$\label{sec:exploration}}
@@ -692,15 +706,15 @@ The HJB equation for \eqref{eq:basic-problem} is then
 \end{subequations}
 The minimum in \eqref{eq:hjb-q-cost-pde} is obtained with
 \begin{align} \label{eq:hjb-sigma}
-    \sigma(t) & = \min\left(1,\max\left(0,\Rnot\left(1-\frac{\Rnot\gamma}{2c_2}x(t) y(t) (u_y-u_x)\right)\right)\right).
+    \sigma(t) & = \Rnot\min\left(1,\max\left(0,\left(1-\frac{\Rnot\gamma}{2c_2}x(t) y(t) (u_y-u_x)\right)\right)\right).
 \end{align}
 We approximate the solution of \eqref{eq:hjb-q-cost}-\eqref{eq:hjb-sigma} using the first-order
 upwind finite difference method:
 \begin{align}
 \begin{split}
     u(x_i,y_j,t_n) \approx U^{n}_{ij} & = U^{n-1}_{ij} + \\
-    & \Dt \left(\gamma x_i y_j \sigma(x_i, y_j, t) (D^\pm_y U^{n-1}_{ij} - D^-_x U^{n-1}_{ij}) 
-        + c_2\left(1-\frac{\sigma(t)}{\Rnot}\right) - \gamma y_j D^\pm_y U^{n-1}_{ij}\right),
+    & \Dt \left(\gamma x_i y_j \sigma_{ij}(t) (D^\pm_y U^{n-1}_{ij} - D^-_x U^{n-1}_{ij}) 
+        + c_2\left(1-\frac{\sigma_{ij}(t)}{\Rnot}\right) - \gamma y_j D^\pm_y U^{n-1}_{ij}\right),
 \end{split}
 \end{align}
 where
@@ -926,6 +940,10 @@ population, and the quantitative effect of specific NPIs, none of which
 are readily available (or indeed capable of being characterized by a single
 number).  Nevertheless, the general results obtained here may provide insight
 into what optimal intervention strategies and their consequences may look like.
+
+
+%{\bf Acknowledgment.}  The author is grateful to Dr. Helene Frankowski and an
+%anonymous editor, who both provided helpful criticism of an early version of this work.
 
 
 \bibliographystyle{plain}
