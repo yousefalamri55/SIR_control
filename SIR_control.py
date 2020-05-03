@@ -110,8 +110,8 @@ def plot_timelines(xs,ys,controls,ts,labels):
     fig, ax = plt.subplots(1,1,figsize=(10,6))
     for i in range(len(xs)):
         #ax.plot(ts[i],xs[i])
-        ax.plot(ts[i],ys[i],color=palette(i),label=labels[i])
-        ax.plot(ts[i],controls[i],'--',color=palette(i))
+        ax.plot(ts[i],ys[i],color=palette(i+1),label=labels[i])
+        ax.plot(ts[i],controls[i],'--',color=palette(i+1))
     plt.legend()
     plt.xlabel('t');
     ax.autoscale(enable=True, axis='x', tight=True)
