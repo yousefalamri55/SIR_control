@@ -159,6 +159,7 @@ We state the control problem as follows:
 \end{align}
 Here $J$ is the objective function that accounts for the desire to
 minimize infections as well as a running cost of imposing control.
+We assume throughout that $L$ is convex with respect to $q(t)=1-\sigma/\Rnot$.
 
 
 There is a large body of work on compartmental epidemiological models
@@ -337,7 +338,7 @@ Now we turn our attention to the SIR system with control \eqref{SIRq}.
 
 \begin{dfn} ({\bf Admissible control})
 Given a basic reproduction number $\Rnot$, we say a control fuction $\sigma(t)$ is
-admissible if it is piecewise continuous and $0\le \sigma(t) \le \sigma_0$ for all $t$.
+admissible if it is Lebesgue measurable and $0\le \sigma(t) \le \sigma_0$ for all $t$.
 \end{dfn}
 
 It is straightforward to show that \eqref{SIRq} has a unique solution for all time
@@ -371,7 +372,7 @@ $$
 \Sinf(x_0,y_0,\Rnot) \le \Sinf(x(T),y(T),\Rnot) \le 1/\Rnot.
 $$
 
-\subsection{Formulation as a boundary value problem\label{sec:pmp}}
+\subsection{Existence and necessary conditions for an optimal control\label{sec:pmp}}
 Standard application of Pontryagin's maximum principle gives necessary conditions
 for a solution of \eqref{eq:basic-problem}.  The Hamiltonian for this problem is
 \begin{align} \label{eq:ham}
@@ -392,10 +393,12 @@ where $x(t), y(t)$ satisfy $\eqref{SIRq}$.
 The final conditions for $\lambda_{1,2}$ can be computed from \eqref{xinf-grad}.
 
 \begin{thm}
-    Let $(x_0, y_0)\in\dom$ and $\Rnot, \gamma, T\ge 0$ be given.  If $\sigma^*(t)$ is an optimal
-    control for \eqref{eq:basic-problem} and $(x^*(t),y^*(t))$ are the corresponding optimal
-    trajectory, then there exist functions
+    Let $(x_0, y_0)\in\dom$ and $\Rnot, \gamma, T\ge 0$ be given.  Then there
+    exists a control $\sigma^*(t)$ for \eqref{eq:basic-problem} and corresponding
+    response $(x^*(t),y^*(t))$ such that $J$ is minimized over the set of
+    admissible controls.  Furthermore, there exist adjoint functions
     $\lambda_{1,2}(t)$ satisfying \eqref{lambda-odes} with $x(t)=x^*(t), y(t)=y^*(t)$, and
+    the control $\sigma^*(t)$ satisfies the optimality condition
     \begin{align} \label{eq:sigma-c2}
         \sigma^*(t) = \max\left(0,\min\left(\sigma_0,\hat{\sigma}(t)\right)\right),
     \end{align}
@@ -405,8 +408,13 @@ The final conditions for $\lambda_{1,2}$ can be computed from \eqref{xinf-grad}.
     \end{align}
 \end{thm}
 \begin{proof}
-    This is a consequence of the weak Pontryagin's maximum principle; the condition \eqref{eq:dldsig}
-    comes from requiring $\partial H/\partial \sigma = 0$.
+    The existence of an optimal control is guaranteed by \cite[Corollary 4.1]{fleming2012deterministic} since
+    $L$ is convex with respect to $q(t)=1-\sigma(t)/\Rnot$, the state solutions $(x(t),y(t))$
+    are bounded, and the system \eqref{SIRq} is Lipschitz with respect to $x, y$.
+    Thus, applying Pontryagin's maximum principle, we convert the problem \eqref{eq:basic-problem}
+    into that of minimizing $H$ in \eqref{eq:ham} pointwise with respect to $\sigma$.  On
+    the interior of the set of admissible controls we have \eqref{eq:dldsig}, which leads to
+    \eqref{eq:sigma-c2}.
 \end{proof}
 
 
@@ -415,7 +423,8 @@ In this section only, we consider controls that reach the optimal value $\Sinf =
 This is achieved only at $(x,y)=(1/\Rnot,0)$, a state that cannot be reached
 from any other state without imposing some control, and which in any case can
 only be reached after an infinite time.  Thus we momentarily set aside the restriction
-\eqref{q-shortterm} and consider controls over the semi-infinite interval $t\in[0,\infty)$.
+\eqref{q-shortterm} and consider controls extending up to an arbitrarily large time $T$.
+We still require that the system approach a stable equilibrium point as $t\to\infty$.
 We assume that $x_0\ge1/\Rnot$, since otherwise the maximum achievable value of $\Sinf$
 is $x_0$, which would be achieved by taking simply $\sigma(t)=0$ for all $t$.
 We also take $L=0$ so that an optimal control is any control satisfying
@@ -642,7 +651,7 @@ for \eqref{eq:no-cost-problem}.  Here we sketch this approach.  The HJB
 equation for $u(x,y,t)$ can be written
 \begin{subequations} \label{eq:hjb-no-cost}
 \begin{align}
-    u_t & = \gamma y(t) u_y - \gamma x y \min_\sigma \left((u_y-u_x)\sigma\right) \\
+    u_t & = \gamma y u_y - \gamma x y \min_\sigma \left((u_y-u_x)\sigma\right) \\
     u(x,y,T) & = -\Sinf(x,y,\Rnot).
 \end{align}
 \end{subequations}
@@ -656,7 +665,7 @@ The required minimum is obtained by taking
 From \eqref{xinf-grad} we see that $u_y(x,y,T)>u_x(x,y,T)$ for all $(x,y)$.
 Thus for small enough values of $T-t$, the solution of \eqref{eq:hjb-no-cost} satisfies
 \begin{align*}
-    u_t & = \gamma y(t) u_y(x,y,t).
+    u_t & = \gamma y u_y(x,y,t).
 \end{align*}
 The solution of this hyperbolic PDE is
 \begin{align*}
@@ -664,8 +673,8 @@ The solution of this hyperbolic PDE is
 \end{align*}
 Thus, for small enough $T-t$,
 \begin{align*}
-    u_x(x,y,t) & = -\frac{\partial \Sinf}{\partial y(t)} \left(1- \frac{1}{x(t)\Rnot}\right) \\
-    u_y(x,y,t) & = -\frac{\partial \Sinf}{\partial y(t)} e^{-\gamma(T-t)}.
+    u_x(x,y,t) & = -\frac{\partial \Sinf}{\partial y} \left(1- \frac{1}{x(t)\Rnot}\right) \\
+    u_y(x,y,t) & = -\frac{\partial \Sinf}{\partial y} e^{-\gamma(T-t)}.
 \end{align*}
 According to \eqref{eq:hjb-control}, the optimal control value will switch when $u_x=u_y$, which
 leads to \eqref{xtstar}.  Meanwhile, substituting \eqref{eq:hjb-control} in \eqref{eq:hjb-no-cost}
@@ -701,13 +710,13 @@ $$
 The HJB equation for \eqref{eq:basic-problem} is then
 \begin{subequations} \label{eq:hjb-q-cost}
 \begin{align} \label{eq:hjb-q-cost-pde}
-    u_t - \gamma y(t) u_y & = - \min_{0\le \sigma\le \Rnot} \left((u_y-u_x)\gamma x(t) y(t) \sigma(t) + c_2 \left(1-\frac{\sigma(t)}{\Rnot}\right)^2 \right) \\
-    u(x(t),y(t),T) & = -\Sinf(x(t),y(t),\Rnot).
+    u_t - \gamma y u_y & = - \min_{0\le \sigma\le \Rnot} \left((u_y-u_x)\gamma x y \sigma(t) + c_2 \left(1-\frac{\sigma(t)}{\Rnot}\right)^2 \right) \\
+    u(x,y,T) & = -\Sinf(x,y,\Rnot).
 \end{align}
 \end{subequations}
 The minimum in \eqref{eq:hjb-q-cost-pde} is obtained with
 \begin{align} \label{eq:hjb-sigma}
-    \sigma(t) & = \Rnot\min\left(1,\max\left(0,\left(1-\frac{\Rnot\gamma}{2c_2}x(t) y(t) (u_y-u_x)\right)\right)\right).
+    \sigma(t) & = \Rnot\min\left(1,\max\left(0,\left(1-\frac{\Rnot\gamma}{2c_2}x y (u_y-u_x)\right)\right)\right).
 \end{align}
 We approximate the solution of \eqref{eq:hjb-q-cost}-\eqref{eq:hjb-sigma} using the first-order
 upwind finite difference method:
@@ -758,8 +767,8 @@ Here $\ymax$ is the maximum number of hospital beds.
 The HJB equation is then
 \begin{subequations} \label{eq:hjb-hosp}
 \begin{align} \label{eq:hjb-hosp-pde}
-    u_t - \gamma y(t) u_y - c_3 g(y(t)-y_\text{max}) & = - \min_{0\le \sigma\le \Rnot} \left((u_y-u_x)\gamma x(t) y(t) \sigma(t) + c_2 \left(1-\frac{\sigma(t)}{\Rnot}\right)^2 \right) \\
-    u(x,y,T) & = -\Sinf(x(t),y(t),\Rnot).
+    u_t - \gamma y u_y - c_3 g(y-y_\text{max}) & = - \min_{0\le \sigma\le \Rnot} \left((u_y-u_x)\gamma x y \sigma(t) + c_2 \left(1-\frac{\sigma(t)}{\Rnot}\right)^2 \right) \\
+    u(x,y,T) & = -\Sinf(x,y,\Rnot).
 \end{align}
 \end{subequations}
 The control that achieves the minimum in \eqref{eq:hjb-hosp-pde} is again given by \eqref{eq:hjb-sigma}.
