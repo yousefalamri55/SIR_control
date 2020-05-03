@@ -116,9 +116,10 @@ from a fully susceptible population and a small number of infected individuals,
 in the absence of control the SIR model predicts that over $90\%$ of the population
 would be infected.
 
-This overshoot can in principle be reduced through
-non-pharmaceutical intervention (NPI), which is simply a means to
-reduce contact between infected and susceptible individuals.  We model a NPI
+This overshoot can be reduced through non-pharmaceutical intervention (NPI),
+which is simply a means to reduce contact between infected and susceptible
+individuals; reductions of this kind occurred for instance as a result
+of NPIs imposed during the 1918 flu pandemic \cite{bootsma2007effect}.  We model a NPI
 control via a time-dependent reproduction number $\sigma(t)\in[0,\Rnot]$ with the system
 \begin{subequations} \label{SIRq}
 \begin{align}
@@ -131,7 +132,7 @@ A temporary reduction in $\sigma$ can account for both
 population-wide interventions and interventions specific to identified infectious
 (or possibly infectious) individuals.  The SIR model with a time-dependent
 reproduction number (or equivalently, a time-dependent contact rate) has been 
-considered before, for instance in \cite{sun2020tracking}.
+considered before, for instance in \cite{bootsma2007effect,sun2020tracking}.
 
 Typically, an epidemic does not result in substantial {\em permanent} change in the contact rate of
 a population.  We therefore assume 
@@ -739,7 +740,7 @@ control $\sigma(t)$ over the initial time interval is simply $\Rnot$ in both lim
     \centering
     \subfigure[Solution (solid line) and control $\sigma(t)/\Rnot$ (dashed line) vs. time]{\label{fig:varying-c2}\includegraphics[width=0.65\textwidth]{figures/varying_c2.pdf}}
     \subfigure[Trajectory in phase space]{\label{fig:varying-cs-xy}\includegraphics[width=0.34\textwidth]{figures/varying_c2_xy.pdf}}
-    \caption{Optimal solutions with different running cost.  Here $(x(0),y(0)) = (0.99,0.01)$, $\beta=0.3$, $\gamma=0.1$, and $T=100$.\label{fig:varying_c2}}
+    \caption{Optimal solutions with different running cost.  Here $(x(0),y(0)) = (0.9,0.1)$, $\beta=0.3$, $\gamma=0.1$, and $T=100$.\label{fig:varying_c2}}
 \end{figure}
 
 
@@ -773,7 +774,7 @@ Figures \ref{fig:min_hosp_1} and \ref{fig:min_hosp_2} show examples of solutions
 Again, we choose parameter values that demonstrate the range of qualitative behaviors.
 In both examples, the cost of control is scaled by $c_2=10^{-3}$.
 In Figure \ref{fig:min_hosp_1}, a higher cost for hospital overflow is applied,
-with $c_3=10$).  As might be expected, $y(t)$ is generally
+with $c_3=10$.  As might be expected, $y(t)$ is generally
 kept below $\ymax$ (which is set to $0.1$).
 The control is initially off, then turns on
 to avoid hospital overflow, and then turns off again.  While the control is applied,
@@ -789,7 +790,9 @@ it is maintained at a level that keeps the value of $y(t)$ nearly constant in ti
 \end{figure}
 
 Figure \ref{fig:min_hosp_2} shows another example scenario in which the cost of hospital overflow is smaller,
-with $c_3=10$.  In this case the hospital capacity is significantly exceeded for a short time.
+with $c_3=1$.  In this case the hospital capacity is significantly exceeded for a short time,
+and the control is kept on until the final time, but the epidemiological overshoot
+is significantly reduced compared to the previous solution.
 
 \begin{figure}
     \centering
@@ -832,7 +835,7 @@ infected person dying because of the lack of medical care.  We take
 $c_3 = N\eta$,
 where the fatality ratio in the absence of medical care is $\alpha+\eta$.
 In the absence of any relevant data, we take $\eta\approx 2\alpha$, giving
-$c_3 = 0.0012N$.  For $\ymax$ we take values from the United States, where
+$c_3 = 0.012N$.  For $\ymax$ we take values from the United States, where
 there are about 3 hospital beds per 1000 people, and two-thirds of them
 are typically occupied.  Since it is estimated that about 5\% of COVID-19
 cases are hospitalized \cite{verity2020estimates}, this gives $\ymax=0.02N$.
@@ -854,9 +857,9 @@ of intervention that becomes more strict as the epidemic grows, and is gradually
 relaxed as the epidemic subsides.  Most importantly, and in agreement with results
 from the examples in earlier sections, the strongest control is applied around
 the time of peak infection and shortly thereafter.
-The maximum hospital capacity is significantly exceed, with the maximum value of $y$
-around $0.08$.  This level of infection may still be manageable with local surges
-of care facilities and staff, like those that have already been carried out in practice.
+The maximum hospital capacity is significantly exceeded, with the maximum value of $y$
+around $0.08$.  It seems plausible that this level of infection may still be manageable with local surges
+of care facilities and staff, like those that have already been carried out in practice for COVID-19.
 There is also a noticeable (but greatly reduced relative to the uncontrolled case)
 epidemiological overshoot.
 
@@ -872,10 +875,10 @@ epidemiological overshoot.
 An alternative scenario is shown in Figure \ref{fig:real-world-2}, in which
 we have assumed a fatality ratio and a value of $\eta$ that are twice as
 large (in line with the highest estimates of the infection fatality ratio),
-as well as taking $\epsilon=0.05$.  These parameters lead to stronger control,
-especially in the later phases of the epidemic.
-The result is a significant reduction in epidemiological overshoot and in
-maximum infected (around $0.06$).
+as well as taking a smaller cost of intervention with $\epsilon=0.05$.  These
+parameters lead to stronger intervention, especially in the later phases of the epidemic.
+The result is almost no epidemiological overshoot and a reduction in
+maximum simultaneous infected (to around $0.06$).
 
 \begin{figure}
     \centering
@@ -889,8 +892,10 @@ maximum infected (around $0.06$).
 Finally, in Figure \ref{fig:real-world-3}, we repeat the first scenario
 but increase the cost of control by taking $\epsilon=0.5$.
 In this case a more mild control is applied, peaking at about
-20\% contact reduction and concentrated around the time of the
-infection peak.
+35\% contact reduction and concentrated around the time of the
+infection peak.  Both the epidemiological overshoot and the maximum
+infected are worse, compared to the previous two scenarios.
+
 \begin{figure}
     \centering
     \subfigure[Solution and control vs. time]{\label{fig:real_world_3-time}\includegraphics[width=0.65\textwidth]{figures/real_world_3_t.pdf}}
@@ -910,29 +915,37 @@ certain switching time, and then apply maximum control.  We have also considered
 other objective functions that include a running cost of control and a penalty for
 large numbers of simultaneous infections.
 
-A common feature of all solutions is that the optimal control is strongest around
-the time of peak infection.  This is because the payoff for contact reduction
-is larger when the infected population is larger.
+%A common feature of all solutions is that the optimal control is strongest around
+%the time of peak infection.  This is intuitive, since the payoff for contact reduction
+%is larger when the infected population is larger.
+Contrary to simple intuition, it is not optimal to impose the maximum
+level of intervention from the earliest possible time.  But real-world
+studies have supported this observation; a too-strong intervention
+may simply lead to a strong second wave of infection after
+the intervention is lifted, and not significantly reduce epidemiological
+overshoot \cite{bootsma2007effect}.  On the other hand, intervention that
+starts too late or is lifted too soon may also have a negligible
+effect on total mortality \cite{bootsma2007effect,hatchett2007public,markel2007nonpharmaceutical}.
 The idea that intervention should possibly be delayed in order to increase
 its effect was also found in \cite{ballard2017intervention}, although 
 the objective and optimal policy found there differ from the present work.
 
-Although this work has focused on fundamental mathematical theory, there are
-important implications that are relevant to real-world epidemics.  First,
-observe that the optimal solutions obtained here, based on maximizing $\Sinf$, are
-drastically different than those that would be obtained if the objective
-were to maximize $x(T)$ (which would make sense, for instance, if it were
-expected that a vaccine would be available at time $T$).  In the latter case, an optimal strategy over
-short times may be to apply very strong control from the outset.  But the long-term
-outcome of such a strategy, if intervention cannot be maintained forever,
-and in the absence of a vaccine, is simply to delay the epidemic.  This has
-been borne out in real epidemics.
-A study of the 1918 influenza pandemic found no statistically significant
-correlation between interventions and the eventual death toll in US cities
-\cite{hatchett2007public}.  In simple terms, flattening the curve also
-broadens the curve and may not have a substantial impact on the area under the
-curve, especially if the level of control is relaxed as soon as the
-number of infections starts to decrease.
+%Although this work has focused on fundamental mathematical theory, there are
+%important implications that are relevant to real-world epidemics.  First,
+%observe that the optimal solutions obtained here, based on maximizing $\Sinf$, are
+%drastically different than those that would be obtained if the objective
+%were to maximize $x(T)$ (which would make sense, for instance, if it were
+%expected that a vaccine would be available at time $T$).  In the latter case, an optimal strategy over
+%short times may be to apply very strong control from the outset.  But the long-term
+%outcome of such a strategy, if intervention cannot be maintained forever,
+%and in the absence of a vaccine, is simply to delay the epidemic.  This has
+%been borne out in real epidemics.
+%A study of the 1918 influenza pandemic found no statistically significant
+%correlation between interventions and the eventual death toll in US cities
+%\cite{hatchett2007public}.  In simple terms, flattening the curve also
+%broadens the curve and may not have a substantial impact on the area under the
+%curve, especially if the level of control is relaxed as soon as the
+%number of infections starts to decrease.
 
 Real-world application of the strategies derived here would require
 precise knowledge of the disease parameters, the current state of the
@@ -940,11 +953,10 @@ population, and the quantitative effect of specific NPIs, none of which
 are readily available (or indeed capable of being characterized by a single
 number).  Nevertheless, the general results obtained here may provide insight
 into what optimal intervention strategies and their consequences may look like.
-
-
-%{\bf Acknowledgment.}  The author is grateful to Dr. Helene Frankowski and an
-%anonymous editor, who both provided helpful criticism of an early version of this work.
-
+A major shortcoming of the present work is the assumption of a uniform mortality
+rate across all individuals in a population.  We are currently working
+on a generalization of this work that includes different levels of risk for
+different subpopulations.
 
 \bibliographystyle{plain}
 \bibliography{refs}
