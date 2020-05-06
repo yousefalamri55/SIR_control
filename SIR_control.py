@@ -80,7 +80,10 @@ def solve_pmp(beta=0.3, gamma=0.1, x0=0.99, y0=0.01, c1=1., c2=1.e-2, c3=0., yma
         uu[1,:] = 0.5*np.exp(-1.e-3*(tt-15)**2)
         uu[2,:] = -c1
 
-    result = solve_bvp(rhs, bc, tt, uu, max_nodes=2000000, tol=1.e-6, verbose=2)
+    result = solve_bvp(rhs, bc, tt, uu, max_nodes=100000, tol=1.e-6, verbose=0)
+    if result.status != 0: 
+        print(c2)
+        raise Exception('solve_bvp did not converge')
     x = result.y[0,:]
     y = result.y[1,:]
     lam1 = result.y[2,:]
@@ -89,7 +92,7 @@ def solve_pmp(beta=0.3, gamma=0.1, x0=0.99, y0=0.01, c1=1., c2=1.e-2, c3=0., yma
     sigma = sigma0 - (lam2-lam1)*gamma*y*x/(2*c2)
     sigma = np.maximum(sigma_min,np.minimum(sigma0,sigma))
     t = result.x
-    print(result.message)
+    #print(result.message)
     return x, y, sigma, t, result.sol(tt)
 
 

@@ -113,6 +113,7 @@ def model_control(region,params={}):
     plt.plot_date(mdates.num2date(t2+today),y2,'-',color=palette(2),label=label)
 
     plt.plot_date(mdates.num2date([today,today+T]),[ymax,ymax],'-.k',alpha=0.5)
+    plt.ylabel('Infected fraction')
     ax = plt.gca()
     plt.title(region);
     plt.legend();
