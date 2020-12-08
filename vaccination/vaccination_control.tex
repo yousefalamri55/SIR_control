@@ -1,0 +1,110 @@
+\documentclass[english,12pt,letter]{article}
+
+\usepackage{amsthm}
+\usepackage[latin9]{inputenc}
+\usepackage{babel}
+\usepackage[hmargin=0.9in,vmargin=1.25in]{geometry}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage[colorlinks=true,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb,amsfonts}
+
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}{Lemma}
+\newtheorem{cor}{Corollary}
+\newtheorem{dfn}{Definition}
+
+\newcommand{\Rnot}{\sigma_0}
+\newcommand{\xinf}{x^\infty}
+\newcommand{\dom}{{\mathcal D}}
+\newcommand{\R}{{\mathbb R}}
+\newcommand{\xopt}{x_\text{opt}}
+\newcommand{\yopt}{y_\text{opt}}
+\newcommand{\ymax}{y_\text{max}}
+\newcommand{\xoneinf}{x_1^\infty}
+\newcommand{\xtwoinf}{x_1^\infty}
+\newcommand{\xonetwoinf}{x_{1,2}^\infty}
+\newcommand{\sdummy}{\hat{s}}
+
+\DeclareMathOperator\supp{supp}
+
+\begin{document}
+\title{Optimal control of a multi-cohort SIR epidemic through scarce vaccination over time}
+\author{
+  David I. Ketcheson\thanks{Computer, Electrical, and Mathematical Sciences \& Engineering Division,
+King Abdullah University of Science and Technology, 4700 KAUST, Thuwal
+23955, Saudi Arabia. (david.ketcheson@kaust.edu.sa)}
+}
+\maketitle
+
+
+\section{Problem description and assumptions}
+In this work we consider an extension of the
+classical SIR model of Kermack \& Mckendrick \cite{kermack1927contribution}, in which
+the general population is divided into multiple groups, or cohorts, depending on
+factors like risk or geographic location.  We assume that a vaccine becomes
+available in limited quantities over time, and consider the problem of choosing
+how best to distribute the vaccine among the various cohorts.
+
+The population is divided into susceptible ($x$), infected ($y$), and removed ($z$) fractions.
+We assume the epidemic occurs on a timescale over which the the overall population
+and the individual cohorts do not change their composition, so that
+\begin{align}
+    \sum_i (x_i(t) + y_i(t) + z_i(t))dt = 1.
+\end{align}
+The model takes the form
+\begin{subequations} \label{SIR}
+\begin{align} 
+    x_i'(t) & = -x_i(t) \sum_j \beta_{ij}  y_j(t) - u_i(t) \\
+    y_i'(t) & = x_i(t) \sum_j \beta_{ij} y_j(t) - \gamma y_i(t) \label{eq:y} \\
+    z_i'(t) & = \gamma y_i(t) + u_i(t) \label{eq:z}.
+\end{align}
+\end{subequations}
+Here $u_i(t)$ are the control variables which indicate the rate of vaccination
+among cohort $i$.  The values $\beta_{ij}$ are the statistical contact rates
+between the different cohorts.
+The total amount of vaccine available up to time $t$ is denoted
+by $a(t)$.  Vaccination is constrained by
+\begin{align}
+    \sum_i \int_0^t u_i(t) dt \le a(t).
+\end{align}
+
+Our first objective function is simply to minimize the number of deaths.  Let
+$r_i$ denote the infection fatality ratio for cohort $i$.
+Then the number of deaths in cohort $i$ up to time $T$ is
+\begin{align}
+ &  r_i \left(z_i(T) - \int_0^T u_i(t) dt\right) \\
+ = & r_i\left(p_i-x_i - \int_0^T u_i(t) dt\right),
+\end{align}
+where $p_i$ is the total population of cohort $i$.
+We thus take as objective function (omitting the constant term $r_i p_i$)
+\begin{align}
+    J & = - \sum_i r_i \left( x_i(T) + \int_0^T u_i(t) dt\right).
+\end{align}
+The Hamiltonian is then
+\begin{align}
+    H = - \sum_i \lambda_i x_i \sum_j \beta_{ij} y_j + \sum_i \mu_i x_i \sum_j \beta_{ij} y_j 
+            - \sum_i \mu_i \gamma y_i - \sum_i (\lambda_i + r_i) u_i.
+\end{align}
+Here $\lambda_i, \mu_i$ are the adjoint variables, which satisfy
+\begin{align}
+    \lambda_i'(t) & = -\frac{\partial H}{\partial x_i} = (\lambda_i - \mu_i) \sum_j \beta_{ij} y_j \\
+    \mu_i'(t) & = -\frac{\partial H}{\partial y_i} = \sum_j (\lambda_j - \mu_j) \beta_{ji} x_j + \gamma \mu_i \\
+    \lambda_i(T) & = - r_i \\
+    \mu_i(T) & = 0.
+\end{align}
+
+
+\section{Extended compartmental model}
+Now we consider a model including additional compartments: exposed,
+recently vaccinated, symptomatic, asymptomatic, known recovered, and unknown recovered.
+When the vaccine administered, it is distributed randomly among the susceptible,
+asymptomatic, and unknown recovered groups.  Contact rates for the symptomatic
+group are significantly lowered.
+
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}
