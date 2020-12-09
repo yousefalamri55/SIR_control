@@ -83,7 +83,7 @@ We thus take as objective function (omitting the constant term $r_i p_i$)
     J & = - \sum_i r_i \left( x_i(T) + \int_0^T u_i(t) dt\right).
 \end{align}
 The Hamiltonian is then
-\begin{align}
+\begin{align} \label{hamiltonian}
     H = - \sum_i \lambda_i x_i \sum_j \beta_{ij} y_j + \sum_i \mu_i x_i \sum_j \beta_{ij} y_j 
             - \sum_i \mu_i \gamma y_i - \sum_i (\lambda_i + r_i) u_i.
 \end{align}
@@ -94,14 +94,158 @@ Here $\lambda_i, \mu_i$ are the adjoint variables, which satisfy
     \lambda_i(T) & = - r_i \\
     \mu_i(T) & = 0.
 \end{align}
+We see immediately from \eqref{hamiltonian} that it is optimal to use the available
+vaccine immediately on the cohort with the largest value of $\lambda_i + r_i$,
+since a necessary condition for optimiality is pointwise minimization of $H$.
+(prove this?)
 
 
 \section{Extended compartmental model}
-Now we consider a model including additional compartments: exposed,
-recently vaccinated, symptomatic, asymptomatic, known recovered, and unknown recovered.
-When the vaccine administered, it is distributed randomly among the susceptible,
+Now we consider a model that also includes asymptomatic groups.  The asymptomatic
+infected eventually become unknown recovered.
+When the vaccine is administered, it is distributed proportionally among the susceptible,
 asymptomatic, and unknown recovered groups.  Contact rates for the symptomatic
 group are significantly lowered.
+
+\subsection{Single cohort without screening}
+The model takes the form
+\begin{align}
+    S'(t) & = -S(\beta^1 A + \beta^2 I + v) \\
+    {A}'(t) & = \alpha S (\beta^1 A + \beta^2 I) - (\gamma_1 + v) A \\
+    {I}'(t) & = (1-\alpha) (\beta^1 A + \beta^2 I) - (\gamma_2 + \gamma_3) I \\
+    {U}'(t) & = -U v + \gamma_1 A \\
+    {R}'(t) & = \gamma_2 I \\
+    V'(t) & = v(S + A + U) \\
+    D'(t) & = \gamma_3 I.
+\end{align}
+Here $A, I$ are respectively the asymptomatic and symptomatic individuals;
+$U, R$ are their recovered counterparts.  The rate of vaccination (proportional
+to the candidate population $S+A+U$) is given by $v$.
+Because populations $R$, $D$, and $V$ do not appear on the right hand side of the
+system, it is not necessary to explicitly track them in order to solve the optimal control problem.
+Omitting these, we are left with a system of 4 equations for $S$, $A$, $I$, and $U$.
+
+
+\subsection{Screening}
+We assume that it is possible to administer a test (e.g. an antibody test) to determine
+whether an individual already has natural immunity; i.e. to reveal individuals in the
+unknown recovered group and move them to the known recovered group.  The purpose of
+this test (referred to as screening) is to increase the efficiency of the vaccination
+program.  Here we consider three potential screening strategies.
+
+\subsubsection{No screening}
+In this approach, no screening is done and vaccines are administered randomly
+among the apparently susceptible group, which consists of $S$, $A$, and $U$.
+The number of individuals selected from each group will be proportional
+to the size of that group.
+
+The cost to vaccinate a part of the apparently susceptible group is proportional to
+$$
+c_v (S + A + U),
+$$
+and the change in the Hamiltonian is proportional to
+\begin{align} \label{delta-H}
+    - (\lambda_S S + \lambda_{A} A + \lambda_{U} U).
+\end{align}
+
+\subsubsection{Random screening}
+An approach that is simple to model is the application of random screening
+that is not correlated with vaccination.  Screening tests are administered
+in the same way as vaccines, to randomly selected individuals from the
+apparently susceptible group.  
+
+The cost to screen a part of the apparently susceptible group is proportional to
+$$
+c_\omega (S + A + U).
+$$
+
+This has the advantage that screened individuals in $U$ are moved to $R$,
+increasing the effectiveness of future vaccine distribution.
+This strategy has the drawback of the additional cost of screening.  Note that
+some individuals who are screened would never have
+been selected for vaccination anyway.  Hence, those screening costs are wasted.
+
+\subsubsection{Targeted screening}
+In this approach, individuals are first selected for vaccination and then screened
+prior to receiving the vaccine.  The vaccine is administered only if they test
+positive for antibodies.  This is strictly superior to the random screening
+approach since no antibody test is wasted.  The cost of the screening plus
+vaccination is proportional to
+$$
+    c_\omega (S + A + U) + c_v S
+$$
+while the change in the Hamiltonian is again \eqref{delta-H} (since
+it makes no difference to the objective whether people are moved to the
+known recovered group or the vaccinated group).
+Therefore, targeted screening is preferable over no screening when the cost
+difference
+$$
+    c_\omega (S + A + U) - c_v U
+$$
+is negative.
+
+
+\subsection{Single cohort with option for targeted screening}
+Now we let $\nu_1$ denote random screening and $\nu_2$ denote targeted screening.
+The model takes the form
+\begin{align}
+    S'(t) & = -S(\beta^1 A + \beta^2 I + \nu_1 + \nu_2) \\
+    A'(t) & = \alpha (S+L) (\beta^1 A + \beta^2 I) - (\gamma_1 + \nu_1) A \\
+    I'(t) & = (1-\alpha) (S+L) (\beta^1 A + \beta^2 I) - (\gamma_2 + \gamma_3 + \nu_1) I \\
+    U'(t) & = -U (\nu_1 + \nu_2) + \gamma_1 A \\
+    L'(t) & = f(\nu_1+\nu_2)S - L(\beta^1 A + \beta^2 I) \\
+    R'(t) & = \gamma_2 I + \nu_2 U \\
+    V'(t) & = \nu_1 (S + A + U) \\
+    D'(t) & = \gamma_3 I.
+\end{align}
+The rate of screened vaccination is given by $\nu_2$; the rate of vaccine failure is $f$.
+Again, because populations $R$, $D$, and $V$ do not appear on the right hand side of the
+system, it is not necessary to explicitly track them in order to solve the optimal control problem.
+
+The objective function is
+\begin{align}
+    J & = \int_0^T \left( (\xi_D \gamma_3 + c_p) I + c_\nu (\nu_1 (S+A+U) + \nu_2 S) + c_\omega \nu_2 (S+A+U)\right),
+\end{align}
+where $c_\nu, c_\omega$ are the cost of vaccination and screening, respectively, while $c_p$ is the
+combined economic cost of treating someone and the loss of their productivity, and $\xi_D$ is the
+relative value of a life.
+
+The Hamiltonian is
+\begin{align*}
+    H & =  -\lambda_S S (\beta^1 A + \beta^2 I + \nu_1 + \nu_2)
+            + \lambda_A ( \alpha(S+L)(\beta^1 A + \beta^2 I) - (\gamma_1+\nu_1) A) \\
+      &     + \lambda_I ( (1-\alpha)(S+L)(\beta^1 A + \beta^2 I) - (\gamma_2 + \gamma_3 + \nu_1) I )
+            + \lambda_U ( \gamma_1 A - U(\nu_1 + \nu_2) ) \\
+      &     + \lambda_L ( fS(\nu_1 + \nu_2) - L(\beta^1 A + \beta^2 I) )
+            + (\xi_D \gamma_3 + c_p) I + c_\nu (\nu_1 (S+A+U) + \nu_2 S) + c_\omega \nu_2 (S+A+U).
+\end{align*}
+
+The adjoint variables satisfy
+\begin{align}
+    \lambda_S'(t) = -\frac{\partial H}{\partial S} & = (\lambda_S - \alpha \lambda_A - (1-\alpha) \lambda_I) (\beta^1 A + \beta^2 I) + (\lambda_S - \lambda_L f)(\nu_1+\nu_2) - c_\nu (\nu_1 + \nu_2) - c_\omega \nu_2 \\
+    \lambda_A'(t) = -\frac{\partial H}{\partial A} & =  \beta^1 ( S \lambda_S + L\lambda_L - (S+L)(\alpha\lambda_A + (1-\alpha)\lambda_I)) - (\gamma_1+\nu_1)\lambda_A - \gamma_1\lambda_U - c_\nu \nu_1 - c_\omega \nu_2 \\
+    \lambda_I'(t) = -\frac{\partial H}{\partial I} & = \beta^2(S\lambda_S + L\lambda_L - (S+L)(\alpha \lambda_A + (1-\alpha)\lambda_I)) + \lambda_I(\gamma_2 + \gamma_3 + \nu_1) - (\xi_D\gamma_3+c_p) \\
+    \lambda_U'(t) = -\frac{\partial H}{\partial U} & = (\nu_1+\nu_2)\lambda_U - c_\nu \nu_1 - c_\omega \nu_2 \\
+    \lambda_L'(t) = -\frac{\partial H}{\partial L} & = (\beta^1 A + \beta^2 I) (\lambda_L - \alpha \lambda_A - (1-\alpha)\lambda_I)
+\end{align}
+
+To find the optimal control, we compute
+\begin{align}
+    \frac{\partial H}{\partial \nu_1} & = - S \lambda_S - A\lambda_A - I\lambda_I - U\lambda_U + fS\lambda_L + c_\nu(S+A+U) \\
+    \frac{\partial H}{\partial \nu_2} & = -S\lambda_S - U\lambda_U + fS\lambda_L + c_\nu S + c_\omega(S+A+U).
+\end{align}
+It is preferable to screen if
+$$
+\frac{\partial H}{\partial \nu_2} < \frac{\partial H}{\partial \nu_1}
+$$
+which is equivalent to
+$$
+    c_\nu (A+U) - c_\omega(S+A+U) > A\lambda_A + I\lambda_I.
+$$
+The terms on the right seem to be just an artifact of our (possibly faulty) assumptions
+about screening people in groups A and I.
+
+\subsection{Multiple cohorts}
 
 
 \bibliographystyle{plain}
