@@ -85,7 +85,7 @@ def dJ_dy2(x1,x2,y1,y2,sigma,c1,c2):  # Same as dJ_dy1
     return -dxinf_dy(x,y,sigma)*(c1*x1+c2*x2)/x
 
 def optimal_intervention(x10, x20, y10, y20, c1, c2, c3, c4, c5, beta=dbeta, gamma=dgamma,
-                         T=200, ymax=0.04, multipliers=(500,150,50,20,10,8,5,3,2,1.4,1.2,1.1),
+                         T=200, ymax=0.04, multipliers=(500,150,50,30,20,10,8,5,3,2,1.4,1.2,1.1),
                          verbose=True,Nt=10000):
     """
     Solve the optimal control problem by relaxing it to an easy version and
@@ -352,9 +352,9 @@ def model_control(region,params={}):
     y1 = y_no*Nyoung/N**2; y2 = y_no*Nold/N**2
     d1, d2 = approx_deaths(N,x1,x2,y1,y2,sigma0,ifr_young,ifr_old,ymax,gamma,T)
     print('Estimated death toll with no further intervention: '+str(int(d1))+' + '+str(int(d2)))
-    label = 'No intervention ('+str(int(d1))+' + '+str(int(d2))+')'
-    plt.plot_date(mdates.num2date(today+np.arange(T+1)),y1,'-',color=palette(0),label=label)
-    plt.plot_date(mdates.num2date(today+np.arange(T+1)),y2,'--',color=palette(0),label=label)
+    #label = 'No intervention ('+str(int(d1))+' + '+str(int(d2))+')'
+    #plt.plot_date(mdates.num2date(today+np.arange(T+1)),y1,'-',color=palette(0),label=label)
+    #plt.plot_date(mdates.num2date(today+np.arange(T+1)),y2,'--',color=palette(0),label=label)
 
     d1, d2 = approx_deaths(N,x1_1,x2_1,y1_1,y2_1,sigma0,ifr_young,ifr_old,ymax,gamma,T)
     print('Estimated death toll with optimal moderate intervention: '+str(int(d1))+' + '+str(int(d2)))

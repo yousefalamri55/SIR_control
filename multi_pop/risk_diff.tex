@@ -1,0 +1,302 @@
+\documentclass[english,12pt,letter]{article}
+
+\usepackage{amsthm}
+\usepackage[latin9]{inputenc}
+\usepackage{babel}
+\usepackage[hmargin=0.9in,vmargin=1.25in]{geometry}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage[colorlinks=true,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb,amsfonts}
+
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}{Lemma}
+\newtheorem{cor}{Corollary}
+\newtheorem{dfn}{Definition}
+
+\newcommand{\Rnot}{\sigma_0}
+\newcommand{\xinf}{x^\infty}
+\newcommand{\dom}{{\mathcal D}}
+\newcommand{\R}{{\mathbb R}}
+\newcommand{\xopt}{x_\text{opt}}
+\newcommand{\yopt}{y_\text{opt}}
+\newcommand{\ymax}{y_\text{max}}
+\newcommand{\xoneinf}{x_1^\infty}
+\newcommand{\xtwoinf}{x_1^\infty}
+\newcommand{\xonetwoinf}{x_{1,2}^\infty}
+\newcommand{\sdummy}{\hat{s}}
+
+\DeclareMathOperator\supp{supp}
+
+\begin{document}
+\title{Optimal control of an SIR epidemic through contact reduction with differing risk levels}
+\author{
+  David I. Ketcheson\thanks{Computer, Electrical, and Mathematical Sciences \& Engineering Division,
+King Abdullah University of Science and Technology, 4700 KAUST, Thuwal
+23955, Saudi Arabia. (david.ketcheson@kaust.edu.sa)}
+}
+\maketitle
+
+\abstract{Motivated by the COVID-19 pandemic and responses to it,
+we consider the problem of controlling an SIR-model epidemic
+by temporarily reducing the rate of contact within a population.
+We assume that the population is divided into groups with
+different risks (e.g., different fatality ratios).
+The control takes the form of a multiplicative reduction in the contact rate
+of infectious individuals.  The control is allowed to be applied only over
+a finite time interval, while the objective is to minimize the total impact
+of the epidemic, given by the product of the number of infected individuals
+from each group with the relative risk level of that group.
+}
+
+\section{Problem description and assumptions}
+In this work we consider an extension of the
+classical SIR model of Kermack \& Mckendrick \cite{kermack1927contribution}, in which
+the population is parameterized by risk.  The risk parameter is denoted by $s\in\Lambda \subseteq R^d$.
+and represents, e.g. the probability that an infection would lead to death.  This probability is
+often known to a significant extent in terms of comorbidities or other risk factors such as age.
+The population is divided into susceptible ($x$), infected ($y$), and removed ($z$) fractions.
+We assume the epidemic occurs on a timescale over which the risk parametrization does
+not change and the total population is constant, so that
+\begin{align}
+    x(s,t) + y(s,t) + z(s,t) = f(s); \ \ \ \int_\Lambda f(s) ds = 1.
+\end{align}
+The model takes the form
+\begin{subequations} \label{SIR}
+\begin{align} 
+    x'(s,t) & = -\beta x(s,t) y(t) \\
+    y'(s,t) & = \beta x(s,t) y(t) - \gamma y(s,t) \label{eq:y} \\
+    (x(s,0),y(s,0)) & \in \dom := \{(x_0(s),y_0(s)) : x_0(s) \ge 0, y_0(s)\ge 0, \int_\Lambda (x_0(s)+y_0(s))ds \le 1\},
+\end{align}
+\end{subequations}
+where $y(t)=\int_\Lambda y(s,t)ds$.  Let $\Rnot = \beta/\gamma$ denote the
+basic reproduction number; we assume that $\Rnot>1$, which means that an epidemic of some
+size will occur if an infected individual is introduced into a fully-susceptible population.
+
+We introduce additionally a control parameter $q(s,\sdummy, t)$ corresponding to a reduction in contact
+between susceptible individuals with risk $s$ and infected individuals with risk $\sdummy$.  This may represent population-wide non-pharmaceutical
+interventions (NPIs) such as social distancing measures, as well as targeted measures such as
+contact tracing and quarantining for contacts of known infected individuals.  The model then
+takes the form
+\begin{subequations} \label{SIRqc}
+\begin{align} 
+    x'(s,t) & = -\beta x(s,t) \int_\Lambda (1-q(s,\sdummy,t))y(\sdummy,t) d\sdummy \label{eq:x} \\
+    y'(s,t) & = \beta x(s,t) \int_\Lambda(1-q(s,\sdummy,t))y(\sdummy,t)d\sdummy - \gamma y(s,t) \label{eq:y} \\
+    (x(s,0),y(s,0)) & \in \dom,  \ \ \ q(s,\sdummy,t) \in [0,1].
+\end{align}
+\end{subequations}
+It can be shown, by means similar to those used for the original SIR model, that
+the region $\dom$ is forward-invariant and a unique solution exists for all
+time (see e.g. \cite{hethcote2000mathematics}).
+
+We wish to choose the control $q(s,t)$ so as to minimize the cost functional
+\begin{align} \label{J-inf-time}
+    J(x,y,q) := -\int_\Lambda c(s) \lim_{t\to\infty}x(s,t) ds + \int_0^\infty L(x,y,q) dt.
+\end{align}
+Here $c(s)$ represents the cost (e.g., the probability of death) associated
+with infection of individuals with risk level $s$.
+
+Since it is not reasonable to expect that intervention measures will be in place
+indefinitely, we assume there is some finite time $T$ after which intervention stops:
+\begin{align} \label{q-finite-time}
+    q(s,\sdummy,t) & = 0 \ \ \ t>T.
+\end{align}
+This allows us to reformulate the objective in terms of the finite time $T$.  We define
+\begin{align}
+    \xinf(s,x(\cdot,T),y(\cdot,T),\Rnot) := \lim_{t\to\infty} \hat{x}(s,t)
+\end{align}
+where $\hat{x}(s,t)$ is the solution of \eqref{SIR} with initial data $x(\cdot,T), y(\cdot,T)$.
+We further assume that $L=0$ for $t>T$; this assumption will be discussed later.
+Then under the condition \eqref{q-finite-time}, the objective \eqref{J-inf-time} is
+equivalent to
+\begin{align} \label{J-infdim}
+    J(x,y,q) := -\int_\Lambda c(\sdummy) \xinf(\sdummy,x(s,T),y(s,T),\Rnot) d\sdummy + \int_0^T L(x,y,q) dt.
+\end{align}
+
+We will focus on a simplification of the above model, based on the following considerations.
+First, we suppose that targeted measures for quarantining infected or suspected individuals
+are implemented uniformly across risk groups, so that $q$ depends only on $s$ and not $\sdummy$.
+In practice the risk function is not known precisely, and NPIs cannot realistically be
+implemented in a continuously-varying manner.  We thus take $\Lambda=[0,1]$ and
+assume $c(s)$ to be a piecewise constant function:
+\begin{align}
+    c(s) & = c_j \text{ for } s_j < s < s_j+1,
+\end{align}
+where $0=s_1 < s_2 < \cdots < s_m=1$.
+Then \eqref{SIRqc} reduces to a 2$m$-dimensional system of ODEs:
+\begin{subequations} \label{SIRqd}
+\begin{align} 
+    x_j'(t) & = -\beta (1-q_j(t)) x_j(t)  y(t)  & j = 1, 2, \dots, m \\
+    y_j'(t) & = \beta (1-q_j(t)) x_j(t)  y(t) - \gamma y_j(t) & j = 1, 2, \dots, m  \\
+    & x_j(0)\ge 0,y_j(0) \ge 0, \sum_{j=1}^m (x_j(0)+y_j(0) \le 1 \ \ \ q_j(t) \in [0,1].
+\end{align}
+\end{subequations}
+Given the inherent difficulty of imposing NPIs, and the increased difficulty related
+to finely nuanced NPIs, the simplest case of just two risk groups (i.e. $m=2$)
+is of particular interest and will be our main focus.  In this case \eqref{SIRqd} is
+simply
+\begin{subequations} \label{SIRq2}
+\begin{align} 
+    x_1'(t) & = -(1-q_1(t))\beta (y_1(t)+y_2(t)) x_1(t) \\
+    x_2'(t) & = -(1-q_2(t))\beta (y_1(t)+y_2(t)) x_2(t) \\
+    y_1'(t) & = (1-q_1(t))\beta (y_1(t)+y_2(t)) x - \gamma y_1(t) \\
+    y_2'(t) & = (1-q_2(t))\beta (y_1(t)+y_2(t)) x - \gamma y_2(t) \\
+    (x_1(0),x_2(0), y_1(0), y_2(0)) & \in \dom := \{(x_{10},x_{20},y_{10},y_{20}) : x_{10},x_{20},y_{10},y_{20} \ge 0, x_{10}+x_{20}+y_{10}+y_{20} \le 1\},
+\end{align}
+\end{subequations}
+We assume that the infection poses strongly differing risks to the two groups;
+for concreteness we will refer to population 1 as low-risk and population 2
+as high risk.  
+%Here risk means, for instance, the likelihood that an infection
+%will result in fatality.  For instance, in the case of COVID-19, age is a
+%strong predictor of risk.
+The assumption \eqref{q-finite-time} becomes
+\begin{align} \label{q-shortterm}
+    q_{1,2}(t)=0 \text{ for } t>T,
+\end{align}
+and the objective \eqref{J-infdim} becomes
+\begin{align} \label{eq:obj}
+    J = -c_1 \xoneinf(T) - c_2 \xtwoinf(T) + \int_0^T L(y_{1,2},q)dt.
+\end{align}
+where
+\begin{align}
+    x_{1,2}^\infty = \lim_{t\to\infty} x_{1,2}(t).
+\end{align}
+It is convenient to define $x=x_1+x_2$ and $y=y_1+y_2$.
+The system \eqref{SIRq2}, like system \eqref{SIR}, is at equilibrium if
+$y(t)=0$.  Due to \eqref{q-shortterm}, we are interested in the stability
+of this equilibrium when $q_1=q_2=0$.
+In this case, the equilibrium is stable if and
+only if $x(t)\le 1/\Rnot$, a condition referred to as {\em herd immunity}.
+Since the system will eventually reach herd immunity, it is advantageous
+to minimize the so-called {\em epidemiological overshoot}, which referes
+to the excess population infected beyond the inevitable fraction $(\Rnot-1)/\Rnot$;
+i.e. the overshoot is $\Rnot-\xinf$.
+This was the main object of the previous study \cite{ketcheson2020}.
+Herein, we have additionally the complication of the differing risks for the
+two groups; in this setting it is more important to avoid infection of
+the high risk group.
+
+We state the control problem as follows:
+\begin{align} \label{eq:basic-problem}
+\begin{aligned}
+& \text{Given } x_0, y_0, \sigma_0, T, \text{ choose } q(t) \in [0,1] \text{ to minimize \eqref{eq:obj}}  \\
+& \text{ subject to } \eqref{SIRq2}.
+\end{aligned}
+\end{align}
+
+The modeling and assumptions in the present work are motivated by the
+current COVID-19 epidemic, which so far is being managed through broad
+NPIs and without a vaccine.  In order to understand the effects of NPIs
+imposed on an entire population, we stick to the simple model \eqref{SIRq2}
+rather than explicitly modeling quarantined individuals.
+Since such population-wide measures cannot be maintained indefinitely, we
+invoke the finite-time control assumption \eqref{q-shortterm}.
+This assumption is not new (see e.g. \cite{greenhalgh1988some}),
+but unlike previous works our objective function is still based on the
+long-term outcome (rather than the outcome at time $T$).
+This drastically changes the nature of optimal solutions.
+In the last section of this work we also consider the goal of avoiding
+hospital overflow (through {\em flattening the curve}).
+
+The rest of the paper is organized as follows.  In Section \ref{sec:prelims} we
+review results on the exact solution of the SIR model and compute some quantities
+that will be central to our results.  In Section \ref{sec:analytic} we state
+and prove solutions of \eqref{eq:basic-problem} under certain choices of $J$.
+In Section X we illustrate results for other choices of $J$ with computational
+examples.
+
+\section{Preliminaries\label{sec:prelims}}
+
+\subsection{Notation}
+The control above is given as $q_{1,2}(t)$, but for most purposes it is more
+convenient to work with the effective reproduction number, defined as
+$$
+    \sigma_{1,2}(t) := (1-q_{1,2}(t))\Rnot = (1-q_{1,2}(t))\beta/\gamma.
+$$
+We will often simply refer to $\sigma_{1,2}(t)$ as the control.
+
+In general, the solution of \eqref{SIRq2} depends on the initial data
+$(x_0,y_0)$, the control $\sigma_{1,2}(t)$, and time $t$, so it is natural to write
+$x(t;\sigma_{1,2}(t),x_0,y_0)$.
+In what follows it will be convenient to make a slight abuse of notation and
+write $x(t;\sigma_{1,2}(t))$ or $x(t)$ when there is no chance of confusion.
+
+For a fixed reproduction number, the asymptotic susceptible fractions $\xoneinf, \xtwoinf$
+can be obtained from the solution $v(t)$ at any time $t$.
+Thus we will write $\xinf(x,y)$ or $\xinf(x,y,\Rnot)$.
+
+\subsection{Formula for $x_{1,2}^\infty$ and derivatives}
+To solve the problem described above, we must be able to compute
+$\xonetwoinf$ from the terminal state $v(T)$.  Since $q(t)=0$ for $t>T$,
+the values of $x=x_1+x_2$ and $y=y_1+y_2$ evolve according to \eqref{SIR}
+after that time.  We have
+$$
+\frac{d x_1}{d x_2} = \frac{x_1}{x_2},
+$$
+which implies that $x_1/x_2$ is constant.  Thus
+$$
+\frac{\xoneinf}{\xtwoinf} = \frac{x_1(T)}{x_2(T)}.
+$$
+Furthermore, we have
+$$
+\xoneinf + \xtwoinf = \xinf(v(T),\Rnot).
+$$
+Combining these relations we find that
+$$
+    \xtwoinf = \xinf \frac{x_2(T)}{x(T)}.
+$$
+Thus we can write (setting $c_3=0$ for the moment):
+\begin{align}
+    J & = -c_1 \xoneinf - c_2 \xtwoinf = - \xinf \frac{c_1 x_1(T) + c_2 x_2(T)}{x(T)}.
+\end{align}
+We then find
+\begin{align}
+    \frac{\partial J}{\partial x_1} & = - \frac{\partial \xinf}{\partial x}\frac{c_1 x_1(T) + c_2 x_2(T)}{x(T)} 
+            + \xinf x_2(T) \frac{c_2-c_1}{x(T)^2}, \label{eq:djdx1} \\
+    \frac{\partial J}{\partial x_2} & = - \frac{\partial \xinf}{\partial x}\frac{c_1 x_1(T) + c_2 x_2(T)}{x(T)} 
+            - \xinf x_1(T) \frac{c_2-c_1}{x(T)^2}. \label{eq:djdx2} \\
+    \frac{\partial J}{\partial y_1} = \frac{\partial J}{\partial y_2} & = - \frac{\partial \xinf}{\partial y}\frac{c_1 x_1(T) + c_2 x_2(T)}{x(T)}.
+\end{align}
+An interesting observation can be made already, based on these derivatives.
+The first term in both of these derivatives is negative whenever $x>1/\Rnot$.
+Since $c_2>c_1$, the last term in \eqref{eq:djdx2} is negative.  This means that
+increasing $x_2$ (the high-risk susceptible population) always improves the overall outcome.
+But the last term in \eqref{eq:djdx1} is positive, so in some cases it may be that
+increasing the low-risk susceptible population is detrimental to the overall outcome.
+
+
+Let us define
+$$
+   \mu(x,y,\Rnot) := x(t) e^{-\Rnot(x(t)+y(t))},
+$$
+which is constant in time for any solution of \eqref{SIR}.
+Since $y_\infty=0$, we have
+$$
+    x_\infty = x_0 e^{\Rnot(x_\infty-x_0-y_0)} = \mu(x_0,y_0,\Rnot) e^{\Rnot x_\infty}.
+$$
+Setting $w=-x_\infty \Rnot$ we have
+$$
+    we^w = -x_0 \Rnot e^{-\Rnot(x_0+y_0)} = -\mu \Rnot.
+$$
+Thus $w = W_0(-\mu\Rnot)$ where $W_0$ is the principal branch of Lambert's $W$-function \cite{pakes2015lambert},
+and
+\begin{align} \label{eq:xinf}
+    x_\infty = -\frac{1}{\Rnot}W_0(-\mu \Rnot).
+\end{align}
+For the derivatives of $J$ above, we need the derivatives of $\xinf$ with respect to $x$ and $y$.
+Direct computation gives
+\begin{subequations} \label{xinf-grad}
+\begin{align}
+    \frac{\partial \xinf}{\partial y(t)} & = -\frac{\Rnot \xinf}{1-\Rnot \xinf} \\
+    \frac{\partial \xinf}{\partial x(t)} & = \left(1-\frac{1}{x(t)\Rnot}\right) \frac{\partial \xinf}{\partial y(t)}
+      = \frac{1-\Rnot x(t)}{1-\Rnot \xinf} \cdot \frac{\xinf}{x(t)}.
+\end{align}
+\end{subequations}
+
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}
