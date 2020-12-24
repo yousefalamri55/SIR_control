@@ -385,8 +385,8 @@ and the adjoint variables are defined by
 \begin{align} 
     \lambda_1'(t) & = -\frac{\partial H}{\partial x} = (\lambda_1-\lambda_2)\gamma\sigma(t) y(t) - \frac{\partial L}{\partial x} \\
     \lambda_2'(t) & = -\frac{\partial H}{\partial y} = (\lambda_1-\lambda_2)\gamma\sigma(t) x(t) + \lambda_2 \gamma - \frac{\partial L}{\partial y} \\
-    \lambda_2(T) & = -\frac{\partial \Sinf(T)}{\partial x} = \frac{\partial }{\partial y(T)} (-x_\infty(x(T),y(T),\Rnot) \\
-    \lambda_1(T) & = -\frac{\partial \Sinf(T)}{\partial y} =\frac{\partial }{\partial x(T)} (-x_\infty(x(T),y(T),\Rnot) = \left(1-\frac{1}{x(T)\Rnot}\right)\lambda_2(T),
+    \lambda_1(T) & = -\frac{\partial \Sinf(T)}{\partial x} =\frac{\partial }{\partial x(T)} (-x_\infty(x(T),y(T),\Rnot) = \left(1-\frac{1}{x(T)\Rnot}\right)\lambda_2(T) \\
+    \lambda_2(T) & = -\frac{\partial \Sinf(T)}{\partial y} = \frac{\partial }{\partial y(T)} (-x_\infty(x(T),y(T),\Rnot),
 \end{align}
 \end{subequations}
 where $x(t), y(t)$ satisfy $\eqref{SIRq}$.
@@ -601,7 +601,7 @@ Differentiating with respect to $t^*$ gives
 \begin{align} \label{eq:didt}
     \frac{d I}{dt^*} & = \Rnot y(t^*)\left( \Rnot x(t^*)(1-e^{-\gamma(T-t^*)}) - 1 \right).
 \end{align}
-If this condition in \eqref{eq:dropcond} is satisfied then this has no
+If the inequality in \eqref{eq:dropcond} is satisfied then this has no
 zero and $I$ is maximized by taking $t^*=0$.  If the condition in
 \eqref{eq:dropcond} is not satisfied, then setting the right hand side
 of \eqref{eq:didt} equal to zero yields the condition \eqref{xtstar}.
