@@ -385,8 +385,8 @@ and the adjoint variables are defined by
 \begin{align} 
     \lambda_1'(t) & = -\frac{\partial H}{\partial x} = (\lambda_1-\lambda_2)\gamma\sigma(t) y(t) - \frac{\partial L}{\partial x} \\
     \lambda_2'(t) & = -\frac{\partial H}{\partial y} = (\lambda_1-\lambda_2)\gamma\sigma(t) x(t) + \lambda_2 \gamma - \frac{\partial L}{\partial y} \\
-    \lambda_1(T) & = -\frac{\partial \Sinf(T)}{\partial x} =\frac{\partial }{\partial x(T)} (-x_\infty(x(T),y(T),\Rnot) = \left(1-\frac{1}{x(T)\Rnot}\right)\lambda_2(T) \\
-    \lambda_2(T) & = -\frac{\partial \Sinf(T)}{\partial y} = \frac{\partial }{\partial y(T)} (-x_\infty(x(T),y(T),\Rnot),
+    \lambda_1(T) & = -\frac{\partial \Sinf(T)}{\partial x} =\frac{\partial }{\partial x(T)} (-x_\infty(x(T),y(T),\Rnot) = \left(1-\frac{1}{x(T)\Rnot}\right)\lambda_2(T) \label{bc1} \\
+    \lambda_2(T) & = -\frac{\partial \Sinf(T)}{\partial y} = \frac{\partial }{\partial y(T)} (-x_\infty(x(T),y(T),\Rnot), \label{bc2}
 \end{align}
 \end{subequations}
 where $x(t), y(t)$ satisfy $\eqref{SIRq}$.
@@ -498,10 +498,25 @@ $$
 $$
 The optimality condition then implies \eqref{eq:switch} except at points where $\partial H/\partial \sigma=0$
 (see e.g. \cite[Ch. 17]{lenhart2007optimal}.
+
+{\color{red}
+It remains to show that there are no singular arcs.
 Since $x(t),y(t) >0$ for $t<\infty$, we have that $\partial H/\partial \sigma=0$
-if and only if $\lambda_1=\lambda_2$.  Suppose that the latter condition holds on
-an open interval.  By \eqref{lambda-odes}, that would imply that $\lambda_1'(t) = \lambda_2'(t)=0$ on this
-interval and hence for all $t$, which contradicts the boundary conditions \eqref{lambda-odes}.
+if and only if $\lambda_1=\lambda_2$.  Suppose (by way of contradiction) that
+the latter condition holds on an open interval.  Then on that interval we would
+have (by \eqref{lambda-odes} with $L=0$):
+\begin{align}
+\lambda_1'(t) & = (\lambda_1-\lambda_2)\gamma\sigma y = 0 \\
+\lambda_2'(t) & = (\lambda_1-\lambda_2)\gamma\sigma x = 0.
+\end{align}
+By continuity, this would imply that $\lambda_1(t)=\lambda_2(t)$ over
+the whole interval $[0,T]$, and in particular at time $T$.
+But then \eqref{bc1}-\eqref{bc2} gives
+$$
+\left(1-\frac{1}{x(T)\Rnot}\right)\lambda_2(T) = \lambda_2(T).
+$$
+We know from \eqref{xinf-grad} that $\lambda_2(T)\ne 0$, so this
+is a contradiction.}
 \end{proof}
 
 This motivates the following lemma.
@@ -696,6 +711,12 @@ apply an upwind numerical method to compute approximate solutions.
 The numerical solutions obtained via the HJB equation have also been checked in each case
 against solutions of the BVP given in Section \ref{sec:pmp}, and found to
 agree within numerical errors.
+
+{\color{red}
+Because the Lagrangian in this section is not a linear function, the
+solution is not bang-bang, and instead varies smoothly (except when it
+reaches the minimum or maximum allowable value).
+}
 
 
 \subsection{Quadratic running cost of control}
