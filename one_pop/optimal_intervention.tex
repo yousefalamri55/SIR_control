@@ -84,8 +84,8 @@ confers permanent immunity.
 
 \begin{figure}
     \centering
-    \subfigure[$\sigma=3$]{\label{sigma3}\includegraphics[width=0.49\textwidth]{figures/sigma3.pdf}}
-    \subfigure[$\sigma=1.5$]{\label{sigma15}\includegraphics[width=0.49\textwidth]{figures/sigma15.pdf}}
+    \subfigure[$\sigma=3$]{\label{sigma3}\includegraphics[width=0.49\textwidth]{sigma3.pdf}}
+    \subfigure[$\sigma=1.5$]{\label{sigma15}\includegraphics[width=0.49\textwidth]{sigma15.pdf}}
     \caption{Dynamics of the SIR model \eqref{SIR} for two values of the basic reproduction number.
             The critical value $x=1/\sigma$ is shown with a dashed line.\label{fig:dynamics}}
 \end{figure}
@@ -159,7 +159,8 @@ We state the control problem as follows:
 \end{align}
 Here $J$ is the objective function that accounts for the desire to
 minimize infections as well as a running cost of imposing control.
-We assume throughout that $L$ is convex with respect to $q(t)=1-\sigma/\Rnot$.
+We assume throughout that $L$ is convex with respect to $q(t)=1-\sigma/\Rnot$ and
+bounded uniformly by a constant for all $(x,y)\in \dom$, $\sigma\in[0,\sigma_0]$.
 
 
 There is a large body of work on compartmental epidemiological models
@@ -223,6 +224,8 @@ both necessary and sufficient for optimality.
 In Section \ref{sec:application} we consider direct application to the COVID-19
 pandemic.  Some conclusions are drawn in Section \ref{sec:conclusion}.
 
+The code for all examples in this paper is publicly available \cite{ketcheson2021SIRRepro}.
+
 \section{Formulation over a finite time interval\label{sec:prelims}}
 In this section we reformulate the control problem \eqref{eq:inf-time-problem} in terms of
 the solution over a finite time interval $[0,T]$.  This reformulation is
@@ -282,7 +285,7 @@ terms of the state at time $T<\infty$:
 \begin{aligned}
 & \text{Given } (x_0, y_0) \in \dom, \sigma_0>0, T>0,  \\
 & \text{ choose an admissible control } \sigma(t): [0,T] \to [0,\Rnot] \text{ to minimize }  \\
-&     J = -x_\infty(x(T),y(T),\sigma_0) + \int_0^T L(\sigma(t) dt \\
+&     J = -x_\infty(x(T),y(T),\sigma_0) + \int_0^T L(x(t),y(t),\sigma(t)) dt \\
 & \text{ subject to } \eqref{SIRq}.
 \end{aligned}
 \end{align}
@@ -335,11 +338,13 @@ when there is a larger infected population.
 
 \subsection{Bounds on $\Sinf$}
 Now we turn our attention to the SIR system with control \eqref{SIRq}.
+Henceforth we assume that $\sigma(t)\in[0,\sigma_0]$ for almost every $t\in[0,T]$;
+we say that such a control is \emph{admissible}.
 
-\begin{dfn} ({\bf Admissible control})
-Given a basic reproduction number $\Rnot$, we say a control fuction $\sigma(t)$ is
-admissible if it is Lebesgue measurable and $0\le \sigma(t) \le \sigma_0$ for all $t$.
-\end{dfn}
+%\begin{dfn} ({\bf Admissible control})
+%Given a basic reproduction number $\Rnot$, we say a control fuction $\sigma(t)$ is
+%admissible if it is Lebesgue measurable and $0\le \sigma(t) \le \sigma_0$ for all $t$.
+%\end{dfn}
 
 It is straightforward to show that \eqref{SIRq} has a unique solution for all time
 for any initial data in $\dom$ and any admissible control, by the same
@@ -373,12 +378,21 @@ $$
 $$
 
 \subsection{Existence and necessary conditions for an optimal control\label{sec:pmp}}
-Standard application of Pontryagin's maximum principle gives necessary conditions
-for a solution of \eqref{eq:basic-problem}.  The Hamiltonian for this problem is
+%In this section we make use of Pontryagin's maximum principle \cite[Thm. 3.3.1]{speyer2010primer}
+%to obtain necessary conditions for a solution of \eqref{eq:basic-problem}.
+%We make the following assumptions (corresponding to \cite[Assumptions 3.2.2-3.2.4]{speyer2010primer}:
+%\begin{enumerate}
+%    \item the control $\sigma(t)$ is piecewise continuous;
+%    \item the running cost $L$ is once continuously differentiable in $x$ and $y$ and is continuous in $t$;
+%    \item the final cost $-\Sinf$ is once continuously differentiable in $x$ and $y$.
+%\end{enumerate}
+%The second assumption above will hold for all costs considered in this work, as will the third assumption
+%(since the point $(x,y)=(1/\sigma_0,0)$ cannot be reached in finite time from $\dom$).
+Let us define the Hamiltonian
 \begin{align} \label{eq:ham}
     H(x(t),y(t), \sigma(t), \lambda_{1,2}(t), t) = -\lambda_1(t) \gamma \sigma(t) y(t) x(t) + \lambda_2(t)\gamma y(t)(\sigma(t) x(t) - 1) + L(x(t),y(t),\sigma(t)),
 \end{align}
-and the adjoint variables are defined by
+and the adjoint variables $\lambda_1(t), \lambda_2(t)$, which are required to satisfy
 %Let $\sigma^*(t)$ denote an optimal control for \eqref{eq:basic-problem}.  Then we
 %define functions $\lambda_{1,2}(t)$ via
 \begin{subequations}\label{lambda-odes}
@@ -390,15 +404,42 @@ and the adjoint variables are defined by
 \end{align}
 \end{subequations}
 where $x(t), y(t)$ satisfy $\eqref{SIRq}$.
-The final conditions for $\lambda_{1,2}$ can be computed from \eqref{xinf-grad}.
+Note that the final conditions for $\lambda_{1,2}$ can be computed from \eqref{xinf-grad}.
+We have the following result.
 
 \begin{thm}
-    Let $(x_0, y_0)\in\dom$ and $\Rnot, \gamma, T\ge 0$ be given.  Then there
-    exists a control $\sigma^*(t)$ for \eqref{eq:basic-problem} and corresponding
+    Let $(x_0, y_0)\in\dom$ and $\Rnot, \gamma, T\ge 0$ be given.  
+    Let the running cost $L$ be given such that it is convex with respect to $q$,
+    bounded uniformly by a constant for all $(x,y)\in \dom$, $\sigma\in[0,\sigma_0]$,
+    and continuously differentiable with respect to $x$ and $y$.
+    Then there
+    exists an admissible control $\sigma^*(t)$ for \eqref{eq:basic-problem} and corresponding
     response $(x^*(t),y^*(t))$ such that $J$ is minimized over the set of
     admissible controls.  Furthermore, there exist adjoint functions
-    $\lambda_{1,2}(t)$ satisfying \eqref{lambda-odes} with $x(t)=x^*(t), y(t)=y^*(t)$, and
-    the control $\sigma^*(t)$ satisfies the optimality condition
+    $\lambda_{1,2}(t)$ satisfying \eqref{lambda-odes} for almost all
+    $t\in[0,T]$ with $x(t)=x^*(t), y(t)=y^*(t)$, and
+    such that the Hamiltonian is minimized pointwise with respect to $\sigma$:
+    \begin{align} \label{pointwise-min}
+        H(x^*(t),y^*(t),\sigma^*(t),\lambda_{1,2}(t),t) = \inf_{\sigma\in[0,\sigma_0]} H(x,y,\sigma,\lambda_{1,2},t)
+    \end{align}
+    for almost all $t \in[0,T]$.
+\end{thm}
+\begin{proof}
+    The existence of an optimal control is guaranteed by \cite[Theorem 23.11]{clarke2013functional}
+    %\cite[Corollary 4.1]{fleming2012deterministic} 
+    since $L$ is convex with respect to $q(t)=1-\sigma(t)/\Rnot$, the state solutions $(x(t),y(t))$
+    and their derivatives in time
+    are bounded, the system \eqref{SIRq} is Lipschitz with respect to $x, y$, and the control $\sigma(t)=\sigma_0$
+    is admissible and leads to a finite cost.
+    The second part of the Theorem follows from applying Pontryagin's weak
+    maximum principle as stated e.g. in \cite[Theorem 22.2]{clarke2013functional},
+    which applies due to the assumptions on $L$ and since $\Sinf$ is continuously differentiable with respect to $x$ and $y$.
+    %to convert the problem \eqref{eq:basic-problem}
+    %into that of minimizing $H$ in \eqref{eq:ham} pointwise with respect to $\sigma$.  
+    %On the interior of the set of admissible controls we have \eqref{eq:dldsig}, which leads to \eqref{eq:sigma-c2}.
+\end{proof}
+    Observe that condition \eqref{pointwise-min} implies that
+    the optimal control $\sigma^*(t)$ satisfies the optimality condition
     \begin{align} \label{eq:sigma-c2}
         \sigma^*(t) = \max\left(0,\min\left(\sigma_0,\hat{\sigma}(t)\right)\right),
     \end{align}
@@ -406,16 +447,6 @@ The final conditions for $\lambda_{1,2}$ can be computed from \eqref{xinf-grad}.
     \begin{align} \label{eq:dldsig}
         \left. \frac{\partial L}{\partial \sigma}\right|_{\sigma(t)=\hat{\sigma}(t)} = - (\lambda_2(t)-\lambda_1(t))\gamma y x.
     \end{align}
-\end{thm}
-\begin{proof}
-    The existence of an optimal control is guaranteed by \cite[Corollary 4.1]{fleming2012deterministic} since
-    $L$ is convex with respect to $q(t)=1-\sigma(t)/\Rnot$, the state solutions $(x(t),y(t))$
-    are bounded, and the system \eqref{SIRq} is Lipschitz with respect to $x, y$.
-    Thus, applying Pontryagin's maximum principle, we convert the problem \eqref{eq:basic-problem}
-    into that of minimizing $H$ in \eqref{eq:ham} pointwise with respect to $\sigma$.  On
-    the interior of the set of admissible controls we have \eqref{eq:dldsig}, which leads to
-    \eqref{eq:sigma-c2}.
-\end{proof}
 
 
 \subsection{Infinite-time control}
@@ -448,7 +479,7 @@ The response for each of these controls is shown for a specific example in
 Figure \ref{fig:two-controls}.
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{figures/twocontrols.pdf}
+    \includegraphics[width=0.5\textwidth]{twocontrols.pdf}
     \caption{Two infinite-time controls that give $\Sinf=1/\Rnot$.  Here $\Rnot=3$ and
         $(x_0,y_0)=(0.99,0.01)$.  For the constant control, $\sigma(t)=\sigma_*\approx(1-0.4557)\Rnot$.\label{fig:two-controls}}
 \end{figure}
@@ -499,7 +530,6 @@ $$
 The optimality condition then implies \eqref{eq:switch} except at points where $\partial H/\partial \sigma=0$
 (see e.g. \cite[Ch. 17]{lenhart2007optimal}.
 
-{\color{red}
 It remains to show that there are no singular arcs.
 Since $x(t),y(t) >0$ for $t<\infty$, we have that $\partial H/\partial \sigma=0$
 if and only if $\lambda_1=\lambda_2$.  Suppose (by way of contradiction) that
@@ -516,7 +546,7 @@ $$
 \left(1-\frac{1}{x(T)\Rnot}\right)\lambda_2(T) = \lambda_2(T).
 $$
 We know from \eqref{xinf-grad} that $\lambda_2(T)\ne 0$, so this
-is a contradiction.}
+is a contradiction.
 \end{proof}
 
 This motivates the following lemma.
@@ -560,7 +590,7 @@ Combining these three lemmas, we obtain the following.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{figures/threepaths.pdf}
+    \includegraphics[width=0.5\textwidth]{threepaths.pdf}
     \caption{Three different paths between two states, each obtained
     with a bang-bang control.  The top (green) path arrives in the shortest time.\label{fig:bangbangtraj}}
 \end{figure}
@@ -636,14 +666,14 @@ a more optimal value of $\Sinf$.
 
 \begin{figure}
     \centering
-    \subfigure[Solution and control vs. time]{\label{fig:ex1-time}\includegraphics[width=0.65\textwidth]{figures/example1_time.pdf}}
-    \subfigure[Trajectory in phase space]{\label{fig:ex1-xy}\includegraphics[width=0.34\textwidth]{figures/example1_xy.pdf}}
+    \subfigure[Solution and control vs. time]{\label{fig:ex1-time}\includegraphics[width=0.65\textwidth]{example1_time.pdf}}
+    \subfigure[Trajectory in phase space]{\label{fig:ex1-xy}\includegraphics[width=0.34\textwidth]{example1_xy.pdf}}
     \caption{Typical optimal solution.  Here $(x(0),y(0)) = (0.99,0.01)$, $\beta=0.3$, and $\gamma=0.1$.\label{fig:example1}}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{figures/diff-time-opt.pdf}
+    \includegraphics[width=0.5\textwidth]{diff-time-opt.pdf}
     \caption{Optimal solutions starting from the same point $(0.99,0.01)$ but with different
         final times.  A larger value of $T$ allows the system to reach a more optimal state.
         For all solutions, $\beta=0.3$ and $\gamma=0.1$.\label{fig:diff-time-opt}}
@@ -656,8 +686,8 @@ In Figure \ref{fig:example_2}, we show an optimal solution when $\sigma(t)\ge 0.
 
 \begin{figure}
     \centering
-    \subfigure[Solution and control vs. time]{\label{fig:example_2-t}\includegraphics[width=0.65\textwidth]{figures/example2_time.pdf}}
-    \subfigure[Trajectory in phase space]{\label{fig:example_2-xy}\includegraphics[width=0.34\textwidth]{figures/example2_xy.pdf}}
+    \subfigure[Solution and control vs. time]{\label{fig:example_2-t}\includegraphics[width=0.65\textwidth]{example2_time.pdf}}
+    \subfigure[Trajectory in phase space]{\label{fig:example_2-xy}\includegraphics[width=0.34\textwidth]{example2_xy.pdf}}
     \caption{Optimal solutions with $\sigma(t)\ge 0.4\Rnot$.  Here $(x(0),y(0)) = (0.99,0.01)$, $\beta=0.3$, $\gamma=0.1$, and $T=100$.\label{fig:example_2}}
 \end{figure}
 
@@ -712,11 +742,9 @@ The numerical solutions obtained via the HJB equation have also been checked in 
 against solutions of the BVP given in Section \ref{sec:pmp}, and found to
 agree within numerical errors.
 
-{\color{red}
 Because the Lagrangian in this section is not a linear function, the
 solution is not bang-bang, and instead varies smoothly (except when it
 reaches the minimum or maximum allowable value).
-}
 
 
 \subsection{Quadratic running cost of control}
@@ -739,37 +767,22 @@ The minimum in \eqref{eq:hjb-q-cost-pde} is obtained with
 \begin{align} \label{eq:hjb-sigma}
     \sigma(t) & = \Rnot\min\left(1,\max\left(0,\left(1-\frac{\Rnot\gamma}{2c_2}x y (u_y-u_x)\right)\right)\right).
 \end{align}
-We approximate the solution of \eqref{eq:hjb-q-cost}-\eqref{eq:hjb-sigma} using the first-order
-upwind finite difference method:
-\begin{align}
-\begin{split}
-    u(x_i,y_j,t_n) \approx U^{n}_{ij} & = U^{n-1}_{ij} + \\
-    & \Dt \left(\gamma x_i y_j \sigma_{ij}(t) (D^\pm_y U^{n-1}_{ij} - D^-_x U^{n-1}_{ij}) 
-        + c_2\left(1-\frac{\sigma_{ij}(t)}{\Rnot}\right) - \gamma y_j D^\pm_y U^{n-1}_{ij}\right),
-\end{split}
-\end{align}
-where
-\begin{align*}
-    D^+_x U_{ij} & = \frac{U_{ij}-U_{i-1,j}}{\Dx}, \\
-    D^\pm_y U_{ij} & =
-    \begin{cases}
-        \frac{U_{ij}-U_{i,j-1}}{\Dy} & y'(t;x(t),y(t),\sigma(t))<0 \\
-        \frac{U_{ij+1}-U_{i,j}}{\Dy} & y'(t;x(t),y(t),\sigma(t))>0,
-    \end{cases}
-\end{align*}
-and $\sigma_{ij}(t)$ is given by a centered difference discretization of \eqref{eq:hjb-sigma}.
-Note that the upwind $x$-direction is always to the left, since $x'(t)\le0$.
+We approximate the solution of \eqref{eq:hjb-q-cost}-\eqref{eq:hjb-sigma} using a second-order
+finite volume discretization with the PyClaw software \cite{2012_pyclaw-sisc,2013_sharpclaw,2016_clawpack}.
+For details, the reader is referred to the reproducibility repository that contains the code
+for all examples in this paper \cite{ketcheson2021SIRRepro}.
 
 Numerical solutions for a range of values of $c_2$ are shown in Figure \ref{fig:varying_c2}.
 The values of $c_2$ used here are chosen merely to illustrate the range of possible behaviors.
-Notice that the strength of the control $\sigma(t)$ at early times varies non-monotonically
-with $c_2$, first increasing and then decreasing as $c_2$ is reduced.  Indeed, the optimal
-control $\sigma(t)$ over the initial time interval is simply $\Rnot$ in both limits $c_2 \to \infty$ and $c_2 \to 0$.
+Notice that the strength of the control $\sigma(t)$ and the number of infected at certain times vary non-monotonically
+with $c_2$.  Indeed, the optimal
+control $\sigma(t)$ up to around day 15 is simply $\Rnot$ in both limits $c_2 \to \infty$ and $c_2 \to 0$,
+whereas for intermediate values of $c_2$ some intervention is imposed in this period.
 
 \begin{figure}
     \centering
-    \subfigure[Solution (solid line) and control $\sigma(t)/\Rnot$ (dashed line) vs. time]{\label{fig:varying-c2}\includegraphics[width=0.65\textwidth]{figures/varying_c2.pdf}}
-    \subfigure[Trajectory in phase space]{\label{fig:varying-cs-xy}\includegraphics[width=0.34\textwidth]{figures/varying_c2_xy.pdf}}
+    \subfigure[Solution (solid line) and control $\sigma(t)/\Rnot$ (dashed line) vs. time]{\label{fig:varying-c2}\includegraphics[width=0.65\textwidth]{varying_c2.pdf}}
+    \subfigure[Trajectory in phase space]{\label{fig:varying-cs-xy}\includegraphics[width=0.34\textwidth]{varying_c2_xy.pdf}}
     \caption{Optimal solutions with different running cost.  Here $(x(0),y(0)) = (0.9,0.1)$, $\beta=0.3$, $\gamma=0.1$, and $T=100$.\label{fig:varying_c2}}
 \end{figure}
 
@@ -788,7 +801,7 @@ Here $\ymax$ is the maximum number of hospital beds.
 The HJB equation is then
 \begin{subequations} \label{eq:hjb-hosp}
 \begin{align} \label{eq:hjb-hosp-pde}
-    u_t - \gamma y u_y - c_3 g(y-y_\text{max}) & = - \min_{0\le \sigma\le \Rnot} \left((u_y-u_x)\gamma x y \sigma(t) + c_2 \left(1-\frac{\sigma(t)}{\Rnot}\right)^2 \right) \\
+    u_t - \gamma y u_y + c_3 g(y-y_\text{max}) & = - \min_{0\le \sigma\le \Rnot} \left((u_y-u_x)\gamma x y \sigma(t) + c_2 \left(1-\frac{\sigma(t)}{\Rnot}\right)^2 \right) \\
     u(x,y,T) & = -\Sinf(x,y,\Rnot).
 \end{align}
 \end{subequations}
@@ -798,13 +811,13 @@ in an approximately linear fashion for $v>0$.  For the purpose of having
 a tractable control problem, it is also desirable that $g$ be differentiable.
 We take
 $$
-g(v) = \frac{v}{1+e^{-10v}}.
+g(v) = \frac{v}{1+e^{-100v}}.
 $$
 Figures \ref{fig:min_hosp_1} and \ref{fig:min_hosp_2} show examples of solutions.
 Again, we choose parameter values that demonstrate the range of qualitative behaviors.
-In both examples, the cost of control is scaled by $c_2=10^{-3}$.
+In both examples, the cost of control is scaled by $c_2=10^{-2}$.
 In Figure \ref{fig:min_hosp_1}, a higher cost for hospital overflow is applied,
-with $c_3=10$.  As might be expected, $y(t)$ is generally
+with $c_3=100$.  As might be expected, $y(t)$ is generally
 kept below $\ymax$ (which is set to $0.1$).
 The control is initially off, then turns on
 to avoid hospital overflow, and then turns off again.  While the control is applied,
@@ -812,11 +825,13 @@ it is maintained at a level that keeps the value of $y(t)$ nearly constant in ti
 
 \begin{figure}
     \centering
-    \subfigure[Solution and control vs. time]{\label{fig:minhosp1-time}\includegraphics[width=0.65\textwidth]{figures/min_hosp_1_t.pdf}}
-    \subfigure[Trajectory in phase space]{\label{fig:minhosp1-xy}\includegraphics[width=0.34\textwidth]{figures/min_hosp_1_xy.pdf}}
-    \caption{Optimal solutions with cost for hospital overflow.  Here $(x(0),y(0)) = (0.99,0.01)$, $\beta=0.3$, $\gamma=0.1$, $T=100$,
+    \subfigure[Solution and control vs. time]{\label{fig:minhosp1-time}\includegraphics[width=0.65\textwidth]{min_hosp_1_t.pdf}}
+    \subfigure[Trajectory in phase space]{\label{fig:minhosp1-xy}\includegraphics[width=0.34\textwidth]{min_hosp_1_xy.pdf}}
+    \caption{Optimal solutions with cost for hospital overflow.  Here $(x(0),y(0)) = (0.9,0.01)$, $\beta=0.3$, $\gamma=0.1$, $T=100$,
         and $\ymax=0.1$.
-        In the cost function, we take $c_2=10^{-3}$ and $c_3=10$.\label{fig:min_hosp_1}}
+        In the cost function, we take $c_2=10^{-2}$ and $c_3=100$.
+        The dashed red line shows the result of imposing no control.
+        \label{fig:min_hosp_1}}
 \end{figure}
 
 Figure \ref{fig:min_hosp_2} shows another example scenario in which the cost of hospital overflow is smaller,
@@ -826,11 +841,13 @@ is significantly reduced compared to the previous solution.
 
 \begin{figure}
     \centering
-    \subfigure[Solution and control vs. time]{\label{fig:minhosp2-time}\includegraphics[width=0.65\textwidth]{figures/min_hosp_2_t.pdf}}
-    \subfigure[Trajectory in phase space]{\label{fig:minhosp2-xy}\includegraphics[width=0.34\textwidth]{figures/min_hosp_2_xy.pdf}}
-    \caption{Optimal solutions with smaller cost for hospital overflow.  Here $(x(0),y(0)) = (0.99,0.01)$, $\beta=0.3$, $\gamma=0.1$, $T=100$,
+    \subfigure[Solution and control vs. time]{\label{fig:minhosp2-time}\includegraphics[width=0.65\textwidth]{min_hosp_2_t.pdf}}
+    \subfigure[Trajectory in phase space]{\label{fig:minhosp2-xy}\includegraphics[width=0.34\textwidth]{min_hosp_2_xy.pdf}}
+    \caption{Optimal solutions with smaller cost for hospital overflow.  Here $(x(0),y(0)) = (0.9,0.01)$, $\beta=0.3$, $\gamma=0.1$, $T=100$,
         and $\ymax=0.1$.
-        In the cost function, we take $c_2=10^{-3}$ and $c_3=1$.\label{fig:min_hosp_2}}
+        In the cost function, we take $c_2=10^{-2}$ and $c_3=1$.
+        The dashed red line shows the result of imposing no control.
+        \label{fig:min_hosp_2}}
 \end{figure}
 
 \section{Application to the COVID-19 pandemic\label{sec:application}}
@@ -850,7 +867,7 @@ The examples in this section should be viewed only as illustrations
 of a few possible scenarios, and not an exhaustive or detailed study.
 
 We take the infectious period $\gamma^{-1}=10$ days, and the basic reproduction
-number $\Rnot=2.5$, based on recent estimates \cite{verity2020estimates,liu2020reproductive}.
+number $\Rnot=3.2$, based on recent estimates \cite{verity2020estimates,liu2020reproductive}.
 To make the results easy to interpret, we use a
 fixed terminal cost of $c_1 z_\infty$, where we have introduced an additional
 scaling constant.  Taking $c_1 = \alpha N$, where $N$ is the total population
@@ -864,8 +881,8 @@ The value of $c_3/N$ should be equal to the increase in probability of a given
 infected person dying because of the lack of medical care.  We take
 $c_3 = N\eta$,
 where the fatality ratio in the absence of medical care is $\alpha+\eta$.
-In the absence of any relevant data, we take $\eta\approx 2\alpha$, giving
-$c_3 = 0.012N$.  For $\ymax$ we take values from the United States, where
+We take $\eta\approx \alpha$, giving
+$c_3 = 0.006$.  For $\ymax$ we take values from the United States, where
 there are about 3 hospital beds per 1000 people, and two-thirds of them
 are typically occupied.  Since it is estimated that about 5\% of COVID-19
 cases are hospitalized \cite{verity2020estimates}, this gives $\ymax=0.02N$.
@@ -887,19 +904,17 @@ of intervention that becomes more strict as the epidemic grows, and is gradually
 relaxed as the epidemic subsides.  Most importantly, and in agreement with results
 from the examples in earlier sections, the strongest control is applied around
 the time of peak infection and shortly thereafter.
-The maximum hospital capacity is significantly exceeded, with the maximum value of $y$
-around $0.08$.  It seems plausible that this level of infection may still be manageable with local surges
-of care facilities and staff, like those that have already been carried out in practice for COVID-19.
-There is also a noticeable (but greatly reduced relative to the uncontrolled case)
-epidemiological overshoot.
+The resulting epidemiological overshoot is very small.
 
 \begin{figure}
     \centering
-    \subfigure[Solution and control vs. time]{\label{fig:real_world_1-time}\includegraphics[width=0.65\textwidth]{figures/real_world_1_t.pdf}}
-    \subfigure[Trajectory in phase space]{\label{fig:real_world_1-xy}\includegraphics[width=0.34\textwidth]{figures/real_world_1_xy.pdf}}
-    \caption{Optimal control for COVID-19 with $\Rnot=2.5$, $\gamma=0.1$,
-                $\alpha=0.006$, $\eta=0.012$, $\epsilon=0.2$, $d=10^4$, $T=200$, and $(x(0),y(0)) =
-                (0.999,0.001)$.\label{fig:real-world-1}}
+    \subfigure[Solution and control vs. time]{\label{fig:real_world_1-time}\includegraphics[width=0.65\textwidth]{real_world_1_t.pdf}}
+    \subfigure[Trajectory in phase space]{\label{fig:real_world_1-xy}\includegraphics[width=0.34\textwidth]{real_world_1_xy.pdf}}
+    \caption{Optimal control for COVID-19 with $\Rnot=3.2$, $\gamma=0.1$,
+                $\alpha=\eta=0.006$, $\epsilon=0.2$, $d=10^4$, $T=200$, and $(x(0),y(0)) =
+                (0.999,0.001)$.
+                The dashed red line shows the result of imposing no control.
+                \label{fig:real-world-1}}
 \end{figure}
 
 An alternative scenario is shown in Figure \ref{fig:real-world-2}, in which
@@ -907,32 +922,36 @@ we have assumed a fatality ratio and a value of $\eta$ that are twice as
 large (in line with the highest estimates of the infection fatality ratio),
 as well as taking a smaller cost of intervention with $\epsilon=0.05$.  These
 parameters lead to stronger intervention, especially in the later phases of the epidemic.
-The result is almost no epidemiological overshoot and a reduction in
-maximum simultaneous infected (to around $0.06$).
+The result is almost no epidemiological overshoot.
 
 \begin{figure}
     \centering
-    \subfigure[Solution and control vs. time]{\label{fig:real_world_2-time}\includegraphics[width=0.65\textwidth]{figures/real_world_2_t.pdf}}
-    \subfigure[Trajectory in phase space]{\label{fig:real_world_2-xy}\includegraphics[width=0.34\textwidth]{figures/real_world_2_xy.pdf}}
-    \caption{Optimal control for COVID-19 with $\Rnot=2.5$, $\gamma=0.1$,
-                $\alpha=0.012$, $\eta=0.024$, $\epsilon=0.05$, $d=10^4$, $T=200$, and $(x(0),y(0)) =
-                (0.999,0.001)$.\label{fig:real-world-2}}
+    \subfigure[Solution and control vs. time]{\label{fig:real_world_2-time}\includegraphics[width=0.65\textwidth]{real_world_2_t.pdf}}
+    \subfigure[Trajectory in phase space]{\label{fig:real_world_2-xy}\includegraphics[width=0.34\textwidth]{real_world_2_xy.pdf}}
+    \caption{Optimal control for COVID-19 with $\Rnot=3.2$, $\gamma=0.1$,
+                $\alpha=\eta=0.012$, $\epsilon=0.05$, $d=10^4$, $T=200$, and $(x(0),y(0)) =
+                (0.999,0.001)$.
+                The dashed red line shows the result of imposing no control.
+                \label{fig:real-world-2}}
 \end{figure}
 
 Finally, in Figure \ref{fig:real-world-3}, we repeat the first scenario
-but increase the cost of control by taking $\epsilon=0.5$.
+but increase the cost of control by taking $\epsilon=1$.
 In this case a more mild control is applied, peaking at about
 35\% contact reduction and concentrated around the time of the
-infection peak.  Both the epidemiological overshoot and the maximum
-infected are worse, compared to the previous two scenarios.
+infection peak.  In this case the optimal solution includes a small
+but significant epidemiological overshoot, and significantly exceeds
+the available hospital beds for a certain period of time.
 
 \begin{figure}
     \centering
-    \subfigure[Solution and control vs. time]{\label{fig:real_world_3-time}\includegraphics[width=0.65\textwidth]{figures/real_world_3_t.pdf}}
-    \subfigure[Trajectory in phase space]{\label{fig:real_world_3-xy}\includegraphics[width=0.34\textwidth]{figures/real_world_3_xy.pdf}}
-    \caption{Optimal control for COVID-19 with $\Rnot=2.5$, $\gamma=0.1$,
-                $\alpha=\eta=0.006$, $\epsilon=0.5$, $d=10^4$, $T=2000$, and $(x(0),y(0)) =
-                (0.999,0.001)$.\label{fig:real-world-3}}
+    \subfigure[Solution and control vs. time]{\label{fig:real_world_3-time}\includegraphics[width=0.65\textwidth]{real_world_3_t.pdf}}
+    \subfigure[Trajectory in phase space]{\label{fig:real_world_3-xy}\includegraphics[width=0.34\textwidth]{real_world_3_xy.pdf}}
+    \caption{Optimal control for COVID-19 with $\Rnot=3.2$, $\gamma=0.1$,
+                $\alpha=\eta=0.006$, $\epsilon=0.5$, $d=10^4$, $T=200$, and $(x(0),y(0)) =
+                (0.999,0.001)$.
+                The dashed red line shows the result of imposing no control.
+                \label{fig:real-world-3}}
 \end{figure}
 
 
@@ -977,16 +996,17 @@ the objective and optimal policy found there differ from the present work.
 %curve, especially if the level of control is relaxed as soon as the
 %number of infections starts to decrease.
 
-Real-world application of the strategies derived here would require
-precise knowledge of the disease parameters, the current state of the
-population, and the quantitative effect of specific NPIs, none of which
-are readily available (or indeed capable of being characterized by a single
-number).  Nevertheless, the general results obtained here may provide insight
-into what optimal intervention strategies and their consequences may look like.
-A major shortcoming of the present work is the assumption of a uniform mortality
-rate across all individuals in a population.  We are currently working
-on a generalization of this work that includes different levels of risk for
-different subpopulations.
+The general results obtained here may provide insight
+into what optimal intervention strategies and their consequences may look like,
+but this should be informed by additional insight that can be gained
+from more detailed models.
+This work could form the basis of more detailed real-world application,
+using values of the disease parameters, costs, and effectiveness of NPIs
+relevant to a specific population of interest.  Although the SIR model
+is perhaps the simplest mathematical epidemiological model available,
+it has the advantage of requiring only a few parameters to be constrained.
+Results based on control of the SIR model could form a starting point for
+studying control in more complex models.
 
 \bibliographystyle{plain}
 \bibliography{refs}

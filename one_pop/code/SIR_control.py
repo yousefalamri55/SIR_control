@@ -50,7 +50,7 @@ def solve_pmp(beta=0.3, gamma=0.1, x0=0.99, y0=0.01, c1=1., c2=1.e-2, c3=0., yma
 
         alpha = expit(10*(u[1,:]-ymax))*(u[1,:]-ymax)
         
-        sigma = sigma0 - (u[3,:]-u[2,:])*gamma*u[1,:]*u[0,:]/(2*c2)
+        sigma = sigma0*(1 - sigma0*(u[3,:]-u[2,:])*gamma*u[1,:]*u[0,:]/(2*c2))
         sigma = np.maximum(sigma_min,np.minimum(sigma0,sigma))
 
         du[0,:] = -sigma*gamma*u[1,:]*u[0,:]
@@ -80,7 +80,7 @@ def solve_pmp(beta=0.3, gamma=0.1, x0=0.99, y0=0.01, c1=1., c2=1.e-2, c3=0., yma
         uu[1,:] = 0.5*np.exp(-1.e-3*(tt-15)**2)
         uu[2,:] = -c1
 
-    result = solve_bvp(rhs, bc, tt, uu, max_nodes=100000, tol=1.e-6, verbose=0)
+    result = solve_bvp(rhs, bc, tt, uu, max_nodes=100000, tol=1.e-6, verbose=1)
     if result.status != 0: 
         print(c2)
         raise Exception('solve_bvp did not converge')
@@ -89,7 +89,7 @@ def solve_pmp(beta=0.3, gamma=0.1, x0=0.99, y0=0.01, c1=1., c2=1.e-2, c3=0., yma
     lam1 = result.y[2,:]
     lam2 = result.y[3,:]
 
-    sigma = sigma0 - (lam2-lam1)*gamma*y*x/(2*c2)
+    sigma = sigma0*(1 - sigma0*(lam2-lam1)*gamma*y*x/(2*c2))
     sigma = np.maximum(sigma_min,np.minimum(sigma0,sigma))
     t = result.x
     #print(result.message)
