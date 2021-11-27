@@ -10,14 +10,15 @@ matplotlib.rcParams['figure.figsize'] = (10., 6.)
 from scipy.special import lambertw, expit
 import sys
 sys.path.append('../covid_forecasting')
+# sys.path.append('/Users/yousefalamri/Desktop/SIR_control-master/covid_forecasting-master')
 import covid_forecast as cf
 import data
 import deconvolution
 from datetime import datetime
 palette = plt.get_cmap('tab10')
 
-# $x_1$: high-risk population  
-# $x_2$: low-risk population
+# $x_2$: high-risk population  
+# $x_1$: low-risk population
 
 dgamma = cf.default_gamma
 dbeta = cf.default_beta
@@ -85,29 +86,45 @@ def dJ_dy2(x1,x2,y1,y2,sigma,c1,c2):  # Same as dJ_dy1
     return -dxinf_dy(x,y,sigma)*(c1*x1+c2*x2)/x
 
 def optimal_intervention(x10, x20, y10, y20, c1, c2, c3, c4, c5, beta=dbeta, gamma=dgamma,
-                         T=200, ymax=0.04, multipliers=(500,150,50,30,20,10,8,5,3,2,1.4,1.2,1.1),
+                         T=200, ymax=0.1, Init_mult = 500,
                          verbose=True,Nt=10000):
     """
     Solve the optimal control problem by relaxing it to an easy version and
     then gradually improving the initial guess.
     """
     print(c1,c2,c3,c4,c5)
-    if verbose: print(multipliers[0])
-    x1, x2, y1, y2, q1star, q2star, t, newguess = \
+    if verbose: print(Init_mult)
+    x1, x2, y1, y2, q1star, q2star, t, newguess, ConvFlag = \
             solve_pmp(beta=beta,gamma=gamma,x10=x10,x20=x20,y10=y10,y20=y20,
-                      c1=c1,c2=c2,c3=multipliers[0]*c3,c4=c4,c5=c5,
-                      ymax=ymax,T=T,guess=None,Nt=Nt,tol=1e-3)
-    for mult in multipliers[1:]:
-        if verbose: print(mult, len(t))
-        x1, x2, y1, y2, q1star, q2star, t, newguess = \
-                solve_pmp(beta=beta,gamma=gamma,x10=x10,x20=x20,y10=y10,y20=y20,
-                          c1=c1,c2=c2,c3=mult*c3,c4=c4,c5=c5,
-                          ymax=ymax,T=T,guess=newguess,Nt=Nt,tol=1e-1)
+                      c1=c1,c2=c2,c3=Init_mult*c3,c4=c4,c5=c5,
+                      ymax=ymax,T=T,guess=None,Nt=Nt,tol=1e-1)
+    mult = Init_mult
+    i = 0
+    while mult > 1.2:
+        i += 1
+        if ConvFlag == 1:
+            CurrMult = mult - mult/6
+            x1, x2, y1, y2, q1star, q2star, t, png, ConvFlag = \
+                    solve_pmp(beta=beta,gamma=gamma,x10=x10,x20=x20,y10=y10,y20=y20,
+                              c1=c1,c2=c2,c3=CurrMult*c3,c4=c4,c5=c5,
+                              ymax=ymax,T=T,guess=newguess,Nt=Nt,tol=1e-3)
+        elif ConvFlag == 0:
+            CurrMult = 1.1*mult 
+            x1, x2, y1, y2, q1star, q2star, t, png, ConvFlag = \
+                    solve_pmp(beta=beta,gamma=gamma,x10=x10,x20=x20,y10=y10,y20=y20,
+                              c1=c1,c2=c2,c3=CurrMult*c3,c4=c4,c5=c5,
+                              ymax=ymax,T=T,guess=newguess,Nt=Nt,tol=1e-3)        
+        mult = CurrMult
+        if ConvFlag == 1:
+            newguess = png
+        print(mult)
+
+
     if verbose: print('1')
-    x1, x2, y1, y2, q1star, q2star, t, newguess = \
+    x1, x2, y1, y2, q1star, q2star, t, newguess, ConvFlag = \
             solve_pmp(beta=beta,gamma=gamma,x10=x10,x20=x20,y10=y10,y20=y20,
                       c1=c1,c2=c2,c3=c3,c4=c4,c5=c5,
-                      ymax=ymax,T=T,guess=newguess,Nt=Nt,tol=1e-3,max_nodes=2000000)
+                      ymax=ymax,T=T,guess=newguess,Nt=Nt,tol=1e-3,max_nodes=2000000)  
     return x1, x2, y1, y2, q1star, q2star, t
 
 
@@ -123,7 +140,11 @@ def solve_pmp(beta=0.3, gamma=0.1,
         du = np.zeros((8,len(t)))
         x1 = u[0,:]; x2 = u[1,:]; x=x1+x2
         y1 = u[2,:]; y2 = u[3,:]; y=y1+y2
-        alpha = expit(10*(y-ymax))*(y-ymax)  # Would be better to account for different hosp. rates by age here
+#         alpha = expit(10*(y-ymax))*(y-ymax)  # Would be better to account for different hosp. rates by age here
+        v = y1 + y2 - ymax
+        term1 = ((1-expit(10*v))*(c4*y1+c5*y2))/(y1+y2)
+        dLdy1 = expit(10*v) * (term1 + (c4*y2-c5*y2)/(y1+y2)**2)
+        dLdy2 = expit(10*v) * (term1 + (c5*y1-c4*y1)/(y1+y2)**2)
         lam1 = u[4,:]; lam2 = u[5,:]; lam3 = u[6,:]; lam4 = u[7,:]
 
         q1star = (lam3-lam1)*beta*x1*y/(2*c3)
@@ -139,8 +160,10 @@ def solve_pmp(beta=0.3, gamma=0.1,
 
         du[4,:] = (lam1-lam3)*(1-q1star)*beta*y # - dL/dx1
         du[5,:] = (lam2-lam4)*(1-q2star)*beta*y # - dL/dx2
-        du[6,:] = (lam1-lam3)*(1-q1star)*beta*x1 + (lam2-lam4)*(1-q2star)*beta*x2 + lam3*gamma - c4*alpha
-        du[7,:] = (lam1-lam3)*(1-q1star)*beta*x1 + (lam2-lam4)*(1-q2star)*beta*x2 + lam4*gamma - c5*alpha
+#         du[6,:] = (lam1-lam3)*(1-q1star)*beta*x1 + (lam2-lam4)*(1-q2star)*beta*x2 + lam3*gamma - c4*alpha
+#         du[7,:] = (lam1-lam3)*(1-q1star)*beta*x1 + (lam2-lam4)*(1-q2star)*beta*x2 + lam4*gamma - c5*alpha
+        du[6,:] = (lam1-lam3)*(1-q1star)*beta*x1 + (lam2-lam4)*(1-q2star)*beta*x2 + lam3*gamma - dLdy1
+        du[7,:] = (lam1-lam3)*(1-q1star)*beta*x1 + (lam2-lam4)*(1-q2star)*beta*x2 + lam4*gamma - dLdy2
 
         return du
 
@@ -256,7 +279,13 @@ def solve_pmp(beta=0.3, gamma=0.1,
 
     #t = result.x
     print(result.message)
-    return x1, x2, y1, y2, q1star, q2star, t, result.sol(tt)
+    
+    if result.status == 0:
+        ConvFlag = 1
+    else:
+        ConvFlag = 0
+        
+    return x1, x2, y1, y2, q1star, q2star, t, result.sol(tt), ConvFlag
 
 def plot_timeline(x1,x2,y1,y2,q1,q2,t):
     palette = plt.get_cmap('tab10')
@@ -269,6 +298,8 @@ def plot_timeline(x1,x2,y1,y2,q1,q2,t):
     plt.xlabel('t');
     ax.autoscale(enable=True, axis='x', tight=True)
     return fig
+
+
 
 def opt_params(N,ifr_young,ifr_old,eta,d,eps):
     # ifr_young, ifr_old: fatality ratio for young and old groups
